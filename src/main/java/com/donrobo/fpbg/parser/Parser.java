@@ -64,7 +64,7 @@ public class Parser {
         int endedWith = 0;
         while (matcher.find()) {
             if (matcher.start() != endedWith) {
-                throw new RuntimeException("Skipped \"" + string.substring(endedWith, matcher.start() + 1) + "\"");
+                throw new ParsingError("Skipped \"" + string.substring(endedWith, matcher.start() + 1) + "\"");
             }
             endedWith = matcher.end();
             tokens.add(matcher.group(0));

@@ -18,10 +18,10 @@ public class ElementFactory {
                 while (!tokens.get(0).equals("}")) {
                     String name = tokens.remove(0);
                     if (!name.matches("[\\w-]+")) {
-                        throw new RuntimeException("Invalid name: " + name);
+                        throw new ParsingError("Invalid name: " + name);
                     }
                     if (!tokens.remove(0).equals("=")) {
-                        throw new RuntimeException("Expected '='");
+                        throw new ParsingError("Expected '='");
                     }
 
                     Element value = parseElement(tokens);
@@ -29,7 +29,7 @@ public class ElementFactory {
                     skipToEndOfValue(tokens);
                 }
                 if (!tokens.remove(0).equals("}")) {
-                    throw new RuntimeException("Expected '}'");
+                    throw new ParsingError("Expected '}'");
                 }
                 return new MapElement(elementHashMap);
             } else { //Array
@@ -39,7 +39,7 @@ public class ElementFactory {
                     skipToEndOfValue(tokens);
                 }
                 if (!tokens.remove(0).equals("}")) {
-                    throw new RuntimeException("Expected '}'");
+                    throw new ParsingError("Expected '}'");
                 }
                 return new ArrayElement(elements);
             }
@@ -52,30 +52,34 @@ public class ElementFactory {
         } else if (token.matches(FLOATING_POINT.pattern)) {
             return new PrimitiveElement(Double.parseDouble(token));
         } else if (token.matches(CALCULATION.pattern)) {
-            Matcher calcMatcher = Pattern.compile("(-?\\d*(?>\\.\\d+)?)\\s*([+\\-*/])(\\s*-?\\d*(?>\\.\\d+)?)").matcher(token);
-            if (!calcMatcher.find()) {
-                throw new RuntimeException("Something went very wrong! (forgot to update regex??)");
-            }
-            double value = Double.parseDouble(calcMatcher.group(1));
-            double value2 = Double.parseDouble(calcMatcher.group(3));
-            switch (calcMatcher.group(2)) {
-                case "+":
-                    value += value2;
-                    break;
-                case "-":
-                    value -= value2;
-                    break;
-                case "*":
-                    value *= value2;
-                    break;
-                case "/":
-                    value /= value2;
-                    break;
-                default:
-                    throw new RuntimeException("Something went very wrong!?");
+            try {
+                Matcher calcMatcher = Pattern.compile("(-?\\d*(?>\\.\\d+)?)\\s*([+\\-*/])(\\s*-?\\d*(?>\\.\\d+)?)").matcher(token);
+                if (!calcMatcher.find()) {
+                    throw new ParsingError("Something went very wrong! (forgot to update regex??)");
+                }
+                double value = Double.parseDouble(calcMatcher.group(1));
+                double value2 = Double.parseDouble(calcMatcher.group(3));
+                switch (calcMatcher.group(2)) {
+                    case "+":
+                        value += value2;
+                        break;
+                    case "-":
+                        value -= value2;
+                        break;
+                    case "*":
+                        value *= value2;
+                        break;
+                    case "/":
+                        value /= value2;
+                        break;
+                    default:
+                        throw new ParsingError("Something went very wrong!?");
 
+                }
+                return new PrimitiveElement(value);
+            } catch (Exception ex) {
+                throw new ParsingError(ex);
             }
-            return new PrimitiveElement(value);
         } else if (token.matches(MORE_COMPLEX_FUNCTION_CALL.pattern)) {
             return new PrimitiveElement(token);
         } else if (token.matches(COMPLEX_CALCULATION.pattern)) {
@@ -85,7 +89,7 @@ public class ElementFactory {
         } else if (token.matches(IDENTIFIER.pattern)) {
             return new PrimitiveElement(token); //TODO
         } else {
-            throw new RuntimeException("Didn't parse: " + token);
+            throw new ParsingError("Didn't parse: " + token);
         }
     }
 

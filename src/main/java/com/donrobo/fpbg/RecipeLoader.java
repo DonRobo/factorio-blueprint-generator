@@ -59,6 +59,9 @@ public class RecipeLoader {
             return recipes;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
+        } catch (ParsingError ex) {
+            System.out.println("Skipping " + recipeFile);
+            return new ArrayList<>();
         }
     }
 
