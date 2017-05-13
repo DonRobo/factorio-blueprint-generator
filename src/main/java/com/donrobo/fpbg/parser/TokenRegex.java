@@ -6,14 +6,14 @@ public enum TokenRegex {
     WHITESPACE("\\s+"),
     EQUALS("="),
     STRING("\"[^\"]*\""),
-    COMMA("[,;]"),
-    COMPLEX_CALCULATION("-?\\d*(?>\\.\\d+)?\\s*[+\\-*/]\\s*-?\\d*(?>\\.\\d+)?\\s*[+\\-*/]\\s*-?\\d*(?>\\.\\d+)?"),
-    CALCULATION("-?\\d*(?>\\.\\d+)?\\s*[+\\-*/]\\s*-?\\d*(?>\\.\\d+)?"),
+    COMMA("[,;]"),//HACK should probably switch to Lua for parsing
+    COMPLEX_CALCULATION("-?\\d*(?>\\.\\d+)?\\s*[+\\-*/]\\s*-?\\d*(?>\\.\\d+)?\\s*[+\\-*/]\\s*-?\\d*(?>\\.\\d+)?"), //HACK should probably switch to Lua for parsing
+    CALCULATION("-?\\d*(?>\\.\\d+)?\\s*[+\\-*/]\\s*-?\\d*(?>\\.\\d+)?"),//HACK should probably switch to Lua for parsing
     FLOATING_POINT("-?\\d*\\.\\d+"),
     INTEGER("-?\\d+"),
     BOOLEAN("true|false"),
-    MORE_COMPLEX_FUNCTION_CALL("\\(function\\(\\).*?end\\)\\(\\)"),
-    FUNCTION_CALL("[\\w\\-_.]+\\([^)]*\\)|[\\w\\-_.]+\\{[^}]*}"),
+    MORE_COMPLEX_FUNCTION_CALL("\\(function\\(\\).*?end\\)\\(\\)"),//HACK should probably switch to Lua for parsing
+    FUNCTION_CALL("[\\w\\-_.]+\\([^)]*\\)|[\\w\\-_.]+\\{[^}]*}"),//HACK should probably switch to Lua for parsing
     IDENTIFIER("[\\w\\-_.]+");
 
     public final String pattern;

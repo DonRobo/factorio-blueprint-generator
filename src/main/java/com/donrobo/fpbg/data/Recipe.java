@@ -8,6 +8,8 @@ import java.util.List;
 @Data
 public class Recipe {
 
+    private static final double DEFAULT_RECIPE_TIME = 0.5;
+
     private final String name;
     private final Boolean enabled;
     private final List<ItemStack> ingredients;
@@ -20,7 +22,7 @@ public class Recipe {
         this.enabled = enabled;
         this.ingredients = ingredients;
         this.result = result;
-        this.energyRequired = energyRequired;
+        this.energyRequired = (energyRequired == null || Math.abs(energyRequired) < 0.001) ? DEFAULT_RECIPE_TIME : energyRequired;
         this.extra = extra;
 
         this.extra.remove("name");
