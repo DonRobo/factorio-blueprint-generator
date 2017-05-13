@@ -18,11 +18,26 @@ public class Parser {
         String fileContent = FileUtils.readFileToString(file, "UTF-8");
         fileContent = fileContent.trim().replace("\r", "").replaceAll("--[^\n]+\n", "").replace('\n', ' ');
 
-        Pattern pattern = Pattern.compile("^data:extend\\s*\\((.*)\\)$");
+        Pattern pattern = Pattern.compile("data:extend\\s*\\(");
         Matcher matcher = pattern.matcher(fileContent);
 
         if (matcher.find()) {
-            String content = matcher.group(1);
+            int startIndex = matcher.end();
+            int endIndex = startIndex - 1;
+
+            int brackets = 1;
+            while (brackets != 0) {
+                switch (fileContent.charAt(++endIndex)) {
+                    case '(':
+                        brackets++;
+                        break;
+                    case ')':
+                        brackets--;
+                        break;
+                }
+            }
+
+            String content = fileContent.substring(startIndex, endIndex);
             List<String> tokens = tokenize(content);
 
             for (int i = 0; i < tokens.size(); i++) {
@@ -43,7 +58,7 @@ public class Parser {
     private static List<String> tokenize(String string) {
         List<String> tokens = new ArrayList<>();
 
-        Pattern pattern = Pattern.compile("(\\{|}|\\s+|\\w+|=|\"[^\"]*\"|,|-?\\d*\\.\\d+|-?\\d+\\.\\d*|-?\\d+)");
+        Pattern pattern = Pattern.compile(TokenRegex.combinedPattern());
         Matcher matcher = pattern.matcher(string);
 
         int endedWith = 0;

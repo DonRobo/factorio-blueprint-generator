@@ -34,8 +34,11 @@ public class RecipeLoader {
             ArrayElement arrayElement = (ArrayElement) Parser.parseFile(recipeFile);
             if (arrayElement != null) {
                 for (int i = 0; i < arrayElement.size(); i++) {
+                    if (!(arrayElement.get(i) instanceof MapElement)) {
+                        continue;
+                    }
                     MapElement recipeElement = (MapElement) arrayElement.get(i);
-                    if (!recipeElement.getString("type").equals("recipe")) {
+                    if (!recipeElement.containsKey("type") || !recipeElement.getString("type").equals("recipe")) {
                         continue;
                     }
 
