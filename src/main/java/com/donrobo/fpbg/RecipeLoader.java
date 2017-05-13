@@ -17,7 +17,8 @@ public class RecipeLoader {
 
         assert files != null;
 
-        Arrays.stream(files).map(RecipeLoader::loadRecipesFromFile).forEach(recipes::addAll);
+        Arrays.stream(files).filter(File::isDirectory).map(RecipeLoader::loadRecipes).forEach(recipes::addAll);
+        Arrays.stream(files).filter(File::isFile).filter(f -> f.getName().toLowerCase().endsWith(".lua")).map(RecipeLoader::loadRecipesFromFile).forEach(recipes::addAll);
 
         return recipes;
     }
@@ -31,23 +32,25 @@ public class RecipeLoader {
             List<Recipe> recipes = new ArrayList<>();
 
             ArrayElement arrayElement = (ArrayElement) Parser.parseFile(recipeFile);
-            for (int i = 0; i < arrayElement.size(); i++) {
-                MapElement recipeElement = (MapElement) arrayElement.get(i);
-                if (!recipeElement.getString("type").equals("recipe")) {
-                    continue;
-                }
+            if (arrayElement != null) {
+                for (int i = 0; i < arrayElement.size(); i++) {
+                    MapElement recipeElement = (MapElement) arrayElement.get(i);
+                    if (!recipeElement.getString("type").equals("recipe")) {
+                        continue;
+                    }
 
-                if (recipeElement.containsKey(mode)) {
-                    recipeElement = new MapElement(recipeElement, (MapElement) recipeElement.get(mode));
-                }
+                    if (recipeElement.containsKey(mode)) {
+                        recipeElement = new MapElement(recipeElement, (MapElement) recipeElement.get(mode));
+                    }
 
-                String name = recipeElement.getString("name");
-                Boolean enabled = recipeElement.getBoolean("enabled");
-                List<ItemStack> ingredients = getIngredients(recipeElement);
-                List<ItemStack> result = getResult(recipeElement);
-                Double energyRequired = recipeElement.getDouble("energy_required");
-                HashMap<String, Object> extra = recipeElement.toRawJavaObject();
-                recipes.add(new Recipe(name, enabled, ingredients, result, energyRequired, extra));
+                    String name = recipeElement.getString("name");
+                    Boolean enabled = recipeElement.getBoolean("enabled");
+                    List<ItemStack> ingredients = getIngredients(recipeElement);
+                    List<ItemStack> result = getResult(recipeElement);
+                    Double energyRequired = recipeElement.getDouble("energy_required");
+                    HashMap<String, Object> extra = recipeElement.toRawJavaObject();
+                    recipes.add(new Recipe(name, enabled, ingredients, result, energyRequired, extra));
+                }
             }
 
             return recipes;

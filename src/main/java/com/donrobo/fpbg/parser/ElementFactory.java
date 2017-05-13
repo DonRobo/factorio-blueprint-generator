@@ -46,9 +46,9 @@ public class ElementFactory {
             }
         } else if (token.matches("\"[^\"]*\"")) {
             return new PrimitiveElement(token.substring(1, token.length() - 1));
-        } else if (token.matches("\\d+")) {
+        } else if (token.matches("-?\\d+")) {
             return new PrimitiveElement(Integer.parseInt(token));
-        } else if (token.matches("(\\d*\\.\\d+|\\d+\\.\\d*)")) {
+        } else if (token.matches("(-?\\d*\\.\\d+|-?\\d+\\.\\d*)")) {
             return new PrimitiveElement(Double.parseDouble(token));
         } else if (token.equals("false") || token.equals("true")) {
             return new PrimitiveElement(Boolean.parseBoolean(token));

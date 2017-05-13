@@ -1,6 +1,6 @@
 package com.donrobo.fpbg.parser;
 
-import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
-    @NotNull
+    @Nullable
     public static Element parseFile(File file) throws IOException {
         String fileContent = FileUtils.readFileToString(file, "UTF-8");
         fileContent = fileContent.trim().replace("\r", "").replaceAll("--[^\n]+\n", "").replace('\n', ' ');
@@ -37,19 +37,19 @@ public class Parser {
             return ElementFactory.parseElement(tokens);
         }
 
-        throw new RuntimeException("Couldn't parse");
+        return null;
     }
 
     private static List<String> tokenize(String string) {
         List<String> tokens = new ArrayList<>();
 
-        Pattern pattern = Pattern.compile("(\\{|}|\\s+|\\w+|=|\"[^\"]*\"|,|\\d*\\.\\d+|\\d+\\.\\d*|\\d+)");
+        Pattern pattern = Pattern.compile("(\\{|}|\\s+|\\w+|=|\"[^\"]*\"|,|-?\\d*\\.\\d+|-?\\d+\\.\\d*|-?\\d+)");
         Matcher matcher = pattern.matcher(string);
 
         int endedWith = 0;
         while (matcher.find()) {
             if (matcher.start() != endedWith) {
-                System.out.println("Skipped. \"" + string.substring(endedWith, matcher.start() + 1) + "\"");
+                throw new RuntimeException("Skipped \"" + string.substring(endedWith, matcher.start() + 1) + "\"");
             }
             endedWith = matcher.end();
             tokens.add(matcher.group(0));
