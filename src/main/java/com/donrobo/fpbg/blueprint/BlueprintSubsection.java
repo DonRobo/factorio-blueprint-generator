@@ -19,28 +19,28 @@ public class BlueprintSubsection {
         buildings.stream().map(b -> b.move(xOffset, yOffset)).forEach(subsection::addBuilding);
     }
 
-    public int getMaximumLeft() {
+    public int getMinimumX() {
         return buildings.stream().mapToInt(Building::getX).min().orElse(0);
     }
 
-    public int getMaximumRight() {
-        return buildings.stream().mapToInt(building -> building.getX() + building.getWidth()).max().orElse(0);
+    public int getMaximumX() {
+        return buildings.stream().mapToInt(building -> building.getX() + building.getWidth() - 1).max().orElse(0);
     }
 
-    public int getMaximumUp() {
+    public int getMinimumY() {
         return buildings.stream().mapToInt(Building::getY).min().orElse(0);
     }
 
-    public int getMaximumDown() {
-        return buildings.stream().mapToInt(building -> building.getY() + building.getHeight()).max().orElse(0);
+    public int getMaximumY() {
+        return buildings.stream().mapToInt(building -> building.getY() + building.getHeight() - 1).max().orElse(0);
     }
 
     public int getWidth() {
-        return getMaximumRight() - getMaximumLeft();
+        return getMaximumX() - getMinimumX();
     }
 
     public int getHeight() {
-        return getMaximumDown() - getMaximumUp();
+        return getMaximumY() - getMinimumY();
     }
 
 }
