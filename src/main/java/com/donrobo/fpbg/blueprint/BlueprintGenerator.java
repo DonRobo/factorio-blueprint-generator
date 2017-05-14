@@ -12,16 +12,18 @@ public class BlueprintGenerator {
         Blueprint blueprint = new Blueprint();
 
         Map<String, Integer> outputs = new HashMap<>();
+        Map<String, Integer> productionStepIndexes = new HashMap<>();
         BlueprintSubsection assemblyMachines = new BlueprintSubsection();
         int xOffset = 0;
         for (ProductionStep productionStep : pl.getProductionSteps()) {
             BlueprintSubsection bs = generateSubsectionFor(productionStep);
             bs.addToBlueprintSubsection(xOffset - bs.getMinimumX(), bs.getMaximumY(), assemblyMachines);
-            xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 1;
+            productionStepIndexes.put(productionStep.getRecipe().getName(), xOffset);
+            xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 2;
             if (productionStep.getResultPerSecond().size() != 1) {
                 throw new RuntimeException("Multiple outputs not supported!");
             }
-            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 1);
+            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 2);
         }
 
         assemblyMachines.addToBlueprint(0, 0, blueprint);
@@ -35,10 +37,34 @@ public class BlueprintGenerator {
                 if (rawInputs.contains(input)) {
                     continue;//TODO
                 } else {
-                    int x = outputs.get(input);
-                    int y = 0;
-                    while (blueprint.isOccupied(x, y)) {
-                        y++;
+                    boolean comingFromRight = i % 2 == 0;
+                    int outputX = outputs.get(input);
+                    int inputX = productionStepIndexes.get(productionStep.getRecipe().getName()) + i / 2 + (comingFromRight ? -1 : 1);
+                    boolean goingRight = outputX < inputX;
+                    if (goingRight) {
+                        int x = outputX + 1;
+                        int y = 0;
+                        int beltLength = inputX - x;
+                        while (blueprint.isOccupied(outputX, y, 2, 2) || blueprint.isOccupied(x, y, beltLength, 2)) {
+                            y++;
+                        }
+                        blueprint.addBuilding(new Splitter(outputX, y, Direction.DOWN));
+                        blueprint.addBuilding(new YellowBelt(outputX, y + 1, Direction.DOWN));
+                        for (int beltX = x; beltX <= inputX; beltX++) {
+                            blueprint.addBuilding(new YellowBelt(beltX, y + 1, Direction.RIGHT));
+                        }
+                    } else {
+                        int x = outputX - 1;
+                        int y = 0;
+                        int beltLength = x - inputX;
+                        while (blueprint.isOccupied(x, y, 2, 2) || blueprint.isOccupied(inputX, y, beltLength, 2)) {
+                            y++;
+                        }
+                        blueprint.addBuilding(new Splitter(x, y, Direction.DOWN));
+                        blueprint.addBuilding(new YellowBelt(outputX, y + 1, Direction.DOWN));
+                        for (int beltX = x; beltX >= inputX; beltX--) {
+                            blueprint.addBuilding(new YellowBelt(beltX, y + 1, Direction.LEFT));
+                        }
                     }
                 }
             }

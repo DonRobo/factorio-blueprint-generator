@@ -73,4 +73,16 @@ public class Blueprint {
             return xFits && yFits;
         });
     }
+
+    public boolean isOccupied(int x, int y, int width, int height) {
+        for (int xI = x; xI < x + width; xI++) {
+            for (int yI = y; yI < y + height; yI++) {
+                if (isOccupied(xI, yI)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
