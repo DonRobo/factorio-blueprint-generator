@@ -17,8 +17,8 @@ public class TestMain {
         ProductionLinePlanner productionLinePlanner = new ProductionLinePlanner(recipes);
         System.out.println("Allowed items:");
         ProductionLinePlanner.getDefaultAllowedItems().forEach(System.out::println);
-        productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("electronic-circuit")),
-                ProductionLinePlanner.getDefaultAllowedItems());
+        System.out.println(productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("advanced-circuit")),
+                ProductionLinePlanner.getDefaultAllowedItems()));
 //        recipes.forEach(System.out::println);
 //        Element element = Parser.parseFile(new File(file, "recipe.lua"));
 //        System.out.println(element);

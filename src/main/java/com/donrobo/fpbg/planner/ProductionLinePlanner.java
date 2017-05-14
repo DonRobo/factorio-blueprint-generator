@@ -16,37 +16,49 @@ public class ProductionLinePlanner {
     }
 
     public ProductionLine getProductionLineFor(FractionalItemStack is, List<Item> allowedInput) {
-        Set<Recipe> usedRecipes = new HashSet<>();
+        Map<Recipe, Double> usedRecipes = new HashMap<>();
 
         Map<String, Double> required = new HashMap<>();
         required.put(is.getItem().getName(), is.getCount());
 
+        resolveRecipes(allowedInput, usedRecipes, required);
+
+        System.out.println(String.format("Required items for %s: %s", is.getItem(), required));
+        System.out.println(String.format("Using the recipes: %s", usedRecipes.entrySet().stream().map(
+                r -> String.format(Locale.ENGLISH, "%s*%.1f", r.getKey().getName(), r.getValue())
+        ).collect(Collectors.toList()).toString()));
+
+        return null; //TODO
+    }
+
+    private void resolveRecipes(List<Item> allowedInput, Map<Recipe, Double> usedRecipes, Map<String, Double> required) {
         while (containsMoreThan(required, allowedInput)) {
             Optional<String> optionalItemToProduce = required.keySet().stream().filter(item -> itemNotInList(item, allowedInput)).findAny();
             if (optionalItemToProduce.isPresent()) {
                 String itemToProduce = optionalItemToProduce.get();
+                double requiredCount = required.get(itemToProduce);
                 Recipe usefulRecipe = findRecipeThatProduce(itemToProduce);
                 if (usefulRecipe == null) {
                     throw new RuntimeException("Couldn't find recipe for " + itemToProduce);
                 }
+                Integer resultCount = usefulRecipe.getResult().stream().filter(
+                        i -> i.getItem().getName().equals(itemToProduce)
+                ).map(ItemStack::getCount).findAny().orElse(0);
                 for (ItemStack ingredient : usefulRecipe.getIngredients()) {
-                    Double requiredCount = required.get(ingredient.getItem().getName());
-                    if (requiredCount == null) {
-                        requiredCount = 0.0;
+                    Double requiredIngredientCount = required.get(ingredient.getItem().getName());
+                    if (requiredIngredientCount == null) {
+                        requiredIngredientCount = 0.0;
                     }
-                    requiredCount += ingredient.getCount();
-                    required.put(ingredient.getItem().getName(), requiredCount);
+                    requiredIngredientCount += (ingredient.getCount() * requiredCount) / resultCount.doubleValue();
+                    required.put(ingredient.getItem().getName(), requiredIngredientCount);
                 }
                 required.remove(itemToProduce);
-                usedRecipes.add(usefulRecipe);
+                Double craftingSpeed = usefulRecipe.getEnergyRequired() / resultCount;
+                usedRecipes.put(usefulRecipe, craftingSpeed * requiredCount);
             } else {
                 throw new RuntimeException("Should never get here!");
             }
         }
-
-        System.out.println(String.format("Required items for %s: %s", is.getItem(), required.keySet()));
-        System.out.println(String.format("Using the recipes: %s", usedRecipes.stream().map(Recipe::getName).collect(Collectors.toList()).toString()));
-        return null; //TODO
     }
 
     private boolean containsMoreThan(Map<String, Double> required, List<Item> allowedInput) {
@@ -80,7 +92,7 @@ public class ProductionLinePlanner {
                 "iron-plate",
                 "copper-plate",
                 "steel-plate",
-                "platic-bar",
+                "plastic-bar",
                 "coal",
                 "crude-oil",
                 "heavy-oil",
