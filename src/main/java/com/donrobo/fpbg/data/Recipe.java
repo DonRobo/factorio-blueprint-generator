@@ -1,11 +1,13 @@
 package com.donrobo.fpbg.data;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashMap;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode
 public class Recipe {
 
     private static final double DEFAULT_RECIPE_TIME = 0.5;
@@ -35,5 +37,13 @@ public class Recipe {
         this.extra.remove("type");
         this.extra.remove("normal");
         this.extra.remove("expensive");
+    }
+
+    public boolean isProducingItem(Item item) {
+        return result.stream().anyMatch(i -> i.getItem().equals(item));
+    }
+
+    public boolean isProducingItem(String item) {
+        return result.stream().anyMatch(i -> i.getItem().getName().equals(item));
     }
 }

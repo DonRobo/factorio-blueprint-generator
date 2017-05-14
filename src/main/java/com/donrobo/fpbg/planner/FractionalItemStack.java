@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-
 public class FractionalItemStack {
 
     private final double count;
