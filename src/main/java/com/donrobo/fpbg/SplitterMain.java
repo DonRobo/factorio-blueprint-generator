@@ -2,8 +2,8 @@ package com.donrobo.fpbg;
 
 import com.donrobo.fpbg.blueprint.Blueprint;
 import com.donrobo.fpbg.blueprint.Direction;
-import com.donrobo.fpbg.blueprint.Splitter;
-import com.donrobo.fpbg.blueprint.YellowBelt;
+import com.donrobo.fpbg.blueprint.building.Splitter;
+import com.donrobo.fpbg.blueprint.building.YellowBelt;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;

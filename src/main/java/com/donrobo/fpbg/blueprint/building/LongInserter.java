@@ -1,4 +1,4 @@
-package com.donrobo.fpbg.blueprint;
+package com.donrobo.fpbg.blueprint.building;
 
 import net.sf.json.JSONObject;
 

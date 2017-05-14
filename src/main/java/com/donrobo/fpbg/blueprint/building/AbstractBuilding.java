@@ -1,6 +1,8 @@
-package com.donrobo.fpbg.blueprint;
+package com.donrobo.fpbg.blueprint.building;
 
 import net.sf.json.JSONObject;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public abstract class AbstractBuilding implements Building {
     private final int x;
@@ -42,4 +44,30 @@ public abstract class AbstractBuilding implements Building {
     protected abstract double getBlueprintXOffset();
 
     protected abstract double getBlueprintYOffset();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AbstractBuilding that = (AbstractBuilding) o;
+
+        return new EqualsBuilder()
+                .append(getX(), that.getX())
+                .append(getY(), that.getY())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getX())
+                .append(getY())
+                .toHashCode();
+    }
 }

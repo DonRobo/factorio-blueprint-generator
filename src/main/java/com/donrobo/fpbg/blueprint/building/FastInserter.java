@@ -1,12 +1,11 @@
-package com.donrobo.fpbg.blueprint;
+package com.donrobo.fpbg.blueprint.building;
 
 import net.sf.json.JSONObject;
 
-public class YellowBelt extends AbstractBuilding {
-
+public class FastInserter extends AbstractBuilding {
     private final int direction;
 
-    public YellowBelt(int x, int y, int direction) {
+    public FastInserter(int x, int y, int direction) {
         super(x, y);
         this.direction = direction;
     }
@@ -22,18 +21,13 @@ public class YellowBelt extends AbstractBuilding {
     }
 
     @Override
-    public YellowBelt move(int x, int y) {
-        return new YellowBelt(getX() + x, getY() + y, direction);
+    public Building move(int x, int y) {
+        return new FastInserter(getX() + x, getY() + y, direction);
     }
 
     @Override
     public String getName() {
-        return "transport-belt";
-    }
-
-    @Override
-    protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", Direction.reverseDirection(direction));
+        return "fast-inserter";
     }
 
     @Override
@@ -44,5 +38,10 @@ public class YellowBelt extends AbstractBuilding {
     @Override
     protected double getBlueprintYOffset() {
         return 0;
+    }
+
+    @Override
+    protected void addCustomPropertiesToJson(JSONObject json) {
+        json.put("direction", direction);
     }
 }

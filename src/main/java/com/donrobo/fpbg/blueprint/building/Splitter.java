@@ -1,5 +1,6 @@
-package com.donrobo.fpbg.blueprint;
+package com.donrobo.fpbg.blueprint.building;
 
+import com.donrobo.fpbg.blueprint.Direction;
 import net.sf.json.JSONObject;
 
 import static com.donrobo.fpbg.blueprint.Direction.*;

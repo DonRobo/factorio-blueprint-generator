@@ -18,12 +18,12 @@ import java.util.List;
 public class TestMain {
 
     public static void main(String[] args) throws IOException {
-        File file = new File("D:\\Games\\Steam\\steamapps\\common\\Factorio\\");
+        File file = new File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\");
         List<Recipe> recipes = RecipeLoader.loadRecipes(file);
 
         ProductionLinePlanner productionLinePlanner = new ProductionLinePlanner(recipes);
 
-        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("assembling-machine-2")),
+        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("assembling-machine-1")),
                 ProductionLinePlanner.getDefaultAllowedItems());
         System.out.println(productionLine);
 
