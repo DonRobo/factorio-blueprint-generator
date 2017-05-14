@@ -12,12 +12,7 @@ import java.util.stream.Collectors;
 public class ProductionStep {
 
     private final Recipe recipe;
-    private final AssemblyMachine assemblyMachine;
-    private final int count;
-
-    private double getCraftingSpeed() {
-        return assemblyMachine.getCraftingSpeed() * count;
-    }
+    private final double craftingSpeed;
 
     public List<FractionalItemStack> getResultPerSecond() {
         return recipe.getResult().stream().map(is -> new FractionalItemStack((is.getCount() * getCraftingSpeed()) / recipe.getEnergyRequired(), is.getItem())).collect(Collectors.toList());

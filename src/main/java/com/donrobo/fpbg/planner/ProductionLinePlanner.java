@@ -28,7 +28,7 @@ public class ProductionLinePlanner {
                 r -> String.format(Locale.ENGLISH, "%s*%.1f", r.getKey().getName(), r.getValue())
         ).collect(Collectors.toList()).toString()));
 
-        return null; //TODO
+        return new ProductionLine(usedRecipes.entrySet().stream().map(e -> new ProductionStep(e.getKey(), e.getValue())).collect(Collectors.toList()));
     }
 
     private void resolveRecipes(List<Item> allowedInput, Map<Recipe, Double> usedRecipes, Map<String, Double> required) {
