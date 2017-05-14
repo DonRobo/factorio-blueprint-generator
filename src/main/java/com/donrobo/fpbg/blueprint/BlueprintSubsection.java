@@ -43,4 +43,12 @@ public class BlueprintSubsection {
         return getMaximumY() - getMinimumY();
     }
 
+    public boolean fits(Blueprint blueprint, int x, int y) {
+        for (Building building : buildings) {
+            if (blueprint.isOccupied(building.move(x, y))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

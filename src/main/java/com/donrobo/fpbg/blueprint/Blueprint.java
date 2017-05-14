@@ -85,4 +85,8 @@ public class Blueprint {
 
         return false;
     }
+
+    public boolean isOccupied(Building building) {
+        return isOccupied(building.getX(), building.getY(), building.getWidth(), building.getHeight());
+    }
 }
