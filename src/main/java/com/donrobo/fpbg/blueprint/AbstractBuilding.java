@@ -39,7 +39,7 @@ public abstract class AbstractBuilding implements Building {
     protected void addCustomPropertiesToJson(JSONObject json) {
     }
 
-    protected abstract int getBlueprintXOffset();
+    protected abstract double getBlueprintXOffset();
 
-    protected abstract int getBlueprintYOffset();
+    protected abstract double getBlueprintYOffset();
 }

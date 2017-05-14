@@ -41,12 +41,12 @@ public class AssemblingMachine1 extends AbstractBuilding {
     }
 
     @Override
-    protected int getBlueprintXOffset() {
+    protected double getBlueprintXOffset() {
         return 1;
     }
 
     @Override
-    protected int getBlueprintYOffset() {
+    protected double getBlueprintYOffset() {
         return 1;
     }
 }

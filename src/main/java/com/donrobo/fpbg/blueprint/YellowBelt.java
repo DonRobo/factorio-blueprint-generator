@@ -37,12 +37,12 @@ public class YellowBelt extends AbstractBuilding {
     }
 
     @Override
-    protected int getBlueprintXOffset() {
+    protected double getBlueprintXOffset() {
         return 0;
     }
 
     @Override
-    protected int getBlueprintYOffset() {
+    protected double getBlueprintYOffset() {
         return 0;
     }
 }

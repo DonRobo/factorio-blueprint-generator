@@ -64,4 +64,13 @@ public class Blueprint {
     public void addBuilding(Building building) {
         buildings.add(building);
     }
+
+    public boolean isOccupied(int x, int y) {
+        return buildings.stream().anyMatch(building -> {
+            boolean xFits = building.getX() <= x && building.getX() + building.getWidth() - 1 >= x;
+            boolean yFits = building.getY() <= y && building.getY() + building.getHeight() - 1 >= y;
+
+            return xFits && yFits;
+        });
+    }
 }

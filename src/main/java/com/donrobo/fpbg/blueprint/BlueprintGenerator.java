@@ -3,8 +3,7 @@ package com.donrobo.fpbg.blueprint;
 import com.donrobo.fpbg.planner.ProductionLine;
 import com.donrobo.fpbg.planner.ProductionStep;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BlueprintGenerator {
@@ -12,37 +11,50 @@ public class BlueprintGenerator {
     public static Blueprint generateBlueprint(ProductionLine pl) {
         Blueprint blueprint = new Blueprint();
 
+        Map<String, Integer> outputs = new HashMap<>();
         BlueprintSubsection assemblyMachines = new BlueprintSubsection();
         int xOffset = 0;
         for (ProductionStep productionStep : pl.getProductionSteps()) {
             BlueprintSubsection bs = generateSubsectionFor(productionStep);
             bs.addToBlueprintSubsection(xOffset - bs.getMinimumX(), bs.getMaximumY(), assemblyMachines);
             xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 1;
+            if (productionStep.getResultPerSecond().size() != 1) {
+                throw new RuntimeException("Multiple outputs not supported!");
+            }
+            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 1);
         }
 
         assemblyMachines.addToBlueprint(0, 0, blueprint);
 
-        List<String> duplicateInputs = new ArrayList<>();
-        pl.getProductionSteps().forEach(ps -> ps.getIngredientsPerSecond().forEach(i -> duplicateInputs.add(i.getItem().getName())));
-
-        List<String> inputs = duplicateInputs.stream().distinct().collect(Collectors.toList());
-
-        BlueprintSubsection belts = new BlueprintSubsection();
-        int inputIndex = 0;
-        for (String ignored : inputs) {
-            for (int x = assemblyMachines.getMinimumX() - 1; x <= assemblyMachines.getMaximumX(); x++) {
-                belts.addBuilding(new YellowBelt(x, inputIndex, Direction.RIGHT));
-            }
-            inputIndex += 1;
-        }
-        int beltsYOffset = inputs.size();
-        belts.addToBlueprint(0, beltsYOffset, blueprint);
+        List<String> rawInputs = findRawInputs(pl);
 
         for (ProductionStep productionStep : pl.getProductionSteps()) {
-
+            List<String> inputs = productionStep.getIngredientsPerSecond().stream().map(is -> is.getItem().getName()).collect(Collectors.toList());
+            for (int i = 0; i < inputs.size(); i++) {
+                String input = inputs.get(i);
+                if (rawInputs.contains(input)) {
+                    continue;//TODO
+                } else {
+                    int x = outputs.get(input);
+                    int y = 0;
+                    while (blueprint.isOccupied(x, y)) {
+                        y++;
+                    }
+                }
+            }
         }
 
         return blueprint;
+    }
+
+    private static List<String> findRawInputs(ProductionLine pl) {
+        Set<String> inputs = new HashSet<>();
+        pl.getProductionSteps().forEach(ps -> ps.getIngredientsPerSecond().forEach(is -> inputs.add(is.getItem().getName()))); //all inputs
+
+        Set<String> outputs = new HashSet<>();
+        pl.getProductionSteps().forEach(ps -> ps.getResultPerSecond().forEach(is -> outputs.add(is.getItem().getName()))); //all inputs
+
+        return inputs.stream().filter(input -> !outputs.contains(input)).collect(Collectors.toList());
     }
 
     private static BlueprintSubsection generateSubsectionFor(ProductionStep productionStep) {
