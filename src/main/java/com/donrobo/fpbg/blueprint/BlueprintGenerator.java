@@ -142,7 +142,7 @@ public class BlueprintGenerator {
             throw new RuntimeException("Not yet implemented!");
         }
         for (int i = 0; i < assemblingMachinesRequired; i++) {
-            for (int y = -2; y <= -2; y++) { //TODO was y <= 0
+            for (int y = -2; y <= 0; y++) { //TODO was y <= 0
                 for (int beltX = -inputBelts + 1; beltX <= 0; beltX++) {
                     subsection.addBuilding(new YellowBelt(beltX, y - i * 3, UP));
                 }
