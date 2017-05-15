@@ -1,5 +1,6 @@
 package com.donrobo.fpbg.blueprint.building;
 
+import com.donrobo.fpbg.data.Int2;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -69,5 +70,10 @@ public abstract class AbstractBuilding implements Building {
                 .append(getX())
                 .append(getY())
                 .toHashCode();
+    }
+
+    @Override
+    public Int2 getPosition() {
+        return new Int2(getX(), getY());
     }
 }

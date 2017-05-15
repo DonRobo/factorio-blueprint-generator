@@ -1,8 +1,10 @@
 package com.donrobo.fpbg.blueprint;
 
 import com.donrobo.fpbg.blueprint.building.*;
+import com.donrobo.fpbg.data.Int2;
 import com.donrobo.fpbg.planner.ProductionLine;
 import com.donrobo.fpbg.planner.ProductionStep;
+import com.donrobo.fpbg.util.MultipleEntryMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,91 +13,194 @@ import static com.donrobo.fpbg.blueprint.Direction.*;
 
 public class BlueprintGenerator {
 
+    @SuppressWarnings("Duplicates")
     public static Blueprint generateBlueprint(ProductionLine pl) {
         Blueprint blueprint = new Blueprint();
 
         Map<String, Integer> outputs = new HashMap<>();
         Map<String, Integer> productionStepIndexes = new HashMap<>();
+        MultipleEntryMap<String, Integer> inputIndexes = new MultipleEntryMap<>();
         Blueprint assemblyMachines = new Blueprint();
         int xOffset = 0;
         for (ProductionStep productionStep : pl.getProductionSteps()) {
             Blueprint bs = generateSubsectionFor(productionStep);
             assemblyMachines.addBlueprint(bs, xOffset - bs.getMinimumX(), -bs.getMaximumY());
             productionStepIndexes.put(productionStep.getRecipe().getName(), xOffset);
-            xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 2;
+
+            int count = 0;
+            int finalXOffset = xOffset;
+            productionStep.getIngredientsPerSecond().stream().map(i -> i.getItem().getName()).forEach(ingredient -> {
+                inputIndexes.put(ingredient, finalXOffset + count / 2);
+            });
+
+            xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 3;
             if (productionStep.getResultPerSecond().size() != 1) {
                 throw new RuntimeException("Multiple outputs not supported!");
             }
-            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 2);
+            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 3);
         }
 
         blueprint.addBlueprint(assemblyMachines, 0, 0);
 
-        List<String> rawInputs = findRawInputs(pl);
+        Set<String> rawInputs = new HashSet<>(pl.getInputMaterials());
 
-        for (ProductionStep productionStep : pl.getProductionSteps()) {
-            List<String> inputs = productionStep.getIngredientsPerSecond().stream().map(is -> is.getItem().getName()).collect(Collectors.toList());
-            for (int i = 0; i < inputs.size(); i++) {
-                String input = inputs.get(i);
-                if (rawInputs.contains(input)) {
-                    continue;//TODO
-                } else {
-                    Integer productionIndex = productionStepIndexes.get(productionStep.getRecipe().getName());
-                    int outputX = outputs.get(input);
+        List<String> inputs = pl.getAllIngredients();
 
-                    boolean comingFromRight = i % 2 == 0;
-                    boolean goingRight = outputX < productionIndex;
+        for (String input : inputs) {
+            Blueprint belts = new Blueprint();
+            boolean isRaw = rawInputs.contains(input);
 
-                    Blueprint bs = new Blueprint();
-                    if (goingRight) {
-                        bs.addBuilding(new Splitter(outputX, 0, DOWN));
-                        bs.addBuilding(new YellowBelt(outputX, 1, DOWN));
-                        if (!comingFromRight) {
-                            placeBeltFromTo(bs, outputX + 1, 1, productionIndex - outputX - 1, RIGHT);
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 2, UP));
-                        } else {
-                            placeBeltFromTo(bs, outputX + 1, 1, productionIndex - outputX - 2, RIGHT);
-                            bs.addBuilding(new UndergroundBelt(productionIndex - 1, 1, RIGHT, true));
-                            bs.addBuilding(new UndergroundBelt(productionIndex + 1, 1, RIGHT, false));
-                            bs.addBuilding(new YellowBelt(productionIndex + 2, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex + 2, 0, LEFT));
-                            bs.addBuilding(new YellowBelt(productionIndex + 1, 0, LEFT));
+            int startX = isRaw ? -1 : outputs.get(input);
+            int endX = inputIndexes.get(input).stream().mapToInt(i -> i).max().orElse(0);
 
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                        }
+            if (!isRaw) {
+                belts.addBuilding(new UndergroundBelt(startX, -1, DOWN, false));
+            }
+            placeBeltFromTo(belts, startX, 0, endX - startX, RIGHT);
+
+            List<ProductionStep> productionSteps = pl.getProductionStepsThatRequire(input);
+            List<Integer> endings = inputIndexes.get(input);
+            for (int i = 0; i < endings.size(); i++) {
+                List<String> ingredients = productionSteps.get(i).getIngredientsPerSecond().stream().map(ing -> ing.getItem().getName()).collect(Collectors.toList());
+                int ingIndex = ingredients.indexOf(input);
+
+                int ending = endings.get(i) + (ingIndex / 2);
+                boolean last = i == (endings.size() - 1);
+
+                if (ingIndex % 2 == 0 && ingIndex == (ingredients.size() - 1)) {
+                    if (!last) {
+                        belts.remove(ending - 1, 0);
+                        belts.addBuilding(new Splitter(ending - 1, -1, RIGHT));
+                        belts.addBuilding(new YellowBelt(ending, -1, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -2, UP, true));
                     } else {
-                        bs.addBuilding(new Splitter(outputX - 1, 0, DOWN));
-                        bs.addBuilding(new YellowBelt(outputX, 1, DOWN));
-                        if (comingFromRight) {
-                            placeBeltFromTo(bs, outputX - 1, 1, outputX - productionIndex - 1, LEFT);
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 2, UP));
-                        } else {
-                            placeBeltFromTo(bs, outputX - 1, 1, outputX - productionIndex - 2, LEFT);
-                            bs.addBuilding(new UndergroundBelt(productionIndex + 1, 1, LEFT, true));
-                            bs.addBuilding(new UndergroundBelt(productionIndex - 1, 1, LEFT, false));
-                            bs.addBuilding(new YellowBelt(productionIndex - 2, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex - 2, 0, RIGHT));
-                            bs.addBuilding(new YellowBelt(productionIndex - 1, 0, RIGHT));
+                        belts.addBuilding(new YellowBelt(ending, 0, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -1, UP, true));
+                    }
+                } else if (ingIndex % 2 == 0) {
+                    int offset;
+                    if (!last) {
+                        belts.remove(ending - 2, 0);
+                        belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
+                        offset = 1;
+                    } else {
+                        belts.remove(ending - 1, 0);
+                        offset = 0;
+                    }
+                    belts.addBuilding(new YellowBelt(ending - 1, 0 - offset, UP));
+                    belts.addBuilding(new YellowBelt(ending - 1, -1 - offset, RIGHT));
+                    belts.addBuilding(new UndergroundBelt(ending, 0 - offset, UP, false));
+                    belts.addBuilding(new YellowBelt(ending, -1 - offset, UP));
+                    belts.addBuilding(new UndergroundBelt(ending, -2 - offset, UP, true));
 
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                        }
+                } else {
+                    int offset;
+                    if (!last) {
+                        belts.remove(ending - 2, 0);
+                        belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
+                        offset = 1;
+                    } else {
+                        belts.remove(ending - 1, 0);
+                        offset = 0;
                     }
 
-                    int yOffset = findYPlaceForSection(blueprint, bs);
-                    blueprint.addBlueprint(bs, 0, yOffset);
-                    placeBeltFromTo(blueprint, productionIndex, yOffset, yOffset, UP);
-                    placeBeltFromTo(blueprint, outputX, 0, yOffset, DOWN);
+                    belts.addBuilding(new UndergroundBelt(ending - 1, 0 - offset, RIGHT, true));
+                    belts.addBuilding(new UndergroundBelt(ending + 1, 0 - offset, RIGHT, false));
+                    belts.addBuilding(new YellowBelt(ending + 2, 0 - offset, UP));
+                    belts.addBuilding(new YellowBelt(ending + 2, -1 - offset, LEFT));
+                    belts.addBuilding(new YellowBelt(ending + 1, -1 - offset, LEFT));
+                    belts.addBuilding(new YellowBelt(ending, -1 - offset, UP));
+                    belts.addBuilding(new UndergroundBelt(ending, -2 - offset, UP, true));
+                    belts.addBuilding(new UndergroundBelt(ending, 0 - offset, UP, false));
+                }
+            }
+
+            int yPlacement = findYPlaceForSection(blueprint, belts, 2 - belts.getMinimumY());
+            blueprint.addBlueprint(belts, 0, yPlacement);
+        }
+
+        fixUndergroundBelts(blueprint);
+
+        return blueprint;
+    }
+
+    private static void fixUndergroundBelts(Blueprint blueprint) {
+        //TODO replace orphans with belts DONE
+        //TODO replace by belts where possible DONE
+        //TODO replace zero length undergrounds
+        //TODO fix too long underground belts
+
+        List<UndergroundBelt> undergroundBelts = blueprint.getBuildings().stream()
+                .filter(b -> (b instanceof UndergroundBelt)).map(b -> (UndergroundBelt) b).collect(Collectors.toList());
+
+        for (UndergroundBelt oldUndergroundBelt : undergroundBelts) {
+            blueprint.remove(oldUndergroundBelt.getX(), oldUndergroundBelt.getY());
+            if (isOrphan(blueprint, oldUndergroundBelt)) {
+                blueprint.addBuilding(new YellowBelt(oldUndergroundBelt.getX(), oldUndergroundBelt.getY(), oldUndergroundBelt.getDirection()));
+            } else {
+                int offset = 0;
+                int searchDirection = oldUndergroundBelt.isInput() ? oldUndergroundBelt.getDirection() : Direction.reverseDirection(oldUndergroundBelt.getDirection());
+
+                while (!blueprint.isOccupied(Direction.move(
+                        new Int2(oldUndergroundBelt.getX(), oldUndergroundBelt.getY()),
+                        offset,
+                        searchDirection
+                ))) {
+                    offset++;
+                }
+                offset--;
+                UndergroundBelt newUnderground = Building.move(oldUndergroundBelt, offset, searchDirection);
+                blueprint.addBuilding(newUnderground);
+                if (oldUndergroundBelt.isInput()) {
+                    placeBeltFromTo(blueprint, oldUndergroundBelt.getX(), oldUndergroundBelt.getY(), offset, oldUndergroundBelt.getDirection());
+                } else {
+                    Int2 startPosition = Direction.move(newUnderground.getPosition(), 1, newUnderground.getDirection());
+                    placeBeltFromTo(blueprint, startPosition.getX(), startPosition.getY(), offset, newUnderground.getDirection());
                 }
             }
         }
 
-        return blueprint;
+        undergroundBelts = blueprint.getBuildings().stream()
+                .filter(b -> (b instanceof UndergroundBelt)).map(b -> (UndergroundBelt) b).collect(Collectors.toList());
+        for (UndergroundBelt undergroundBelt : undergroundBelts) {
+            UndergroundBelt other = getOtherUndergroundHalf(blueprint, undergroundBelt);
+            if (other == null) {
+                continue;//TODO
+            }
+            int distance = Math.abs(other.getX() - undergroundBelt.getX()) + Math.abs(other.getY() - undergroundBelt.getY());
+            if (distance == 1) {
+                blueprint.remove(undergroundBelt.getX(), undergroundBelt.getY());
+                blueprint.remove(other.getX(), other.getY());
+
+                blueprint.addBuilding(new YellowBelt(undergroundBelt.getX(), undergroundBelt.getY(), undergroundBelt.getDirection()));
+                blueprint.addBuilding(new YellowBelt(other.getX(), other.getY(), other.getDirection()));
+            }
+        }
+    }
+
+    private static boolean isOrphan(Blueprint blueprint, UndergroundBelt undergroundBelt) {
+        return getOtherUndergroundHalf(blueprint, undergroundBelt) == null;
+    }
+
+    private static UndergroundBelt getOtherUndergroundHalf(Blueprint blueprint, UndergroundBelt undergroundBelt) {
+        int offset = 0;
+
+        Int2 newPos;
+        int searchDirection = undergroundBelt.isInput() ? undergroundBelt.getDirection() : Direction.reverseDirection(undergroundBelt.getDirection());
+        while ((newPos = Direction.move(undergroundBelt.getPosition(), offset, searchDirection))
+                .getX() >= blueprint.getMinimumX()
+                && newPos.getX() <= blueprint.getMaximumX()
+                && newPos.getY() >= blueprint.getMinimumY()
+                && newPos.getY() <= blueprint.getMaximumY()
+                ) {
+            Building building = blueprint.get(newPos);
+            if (building != null && building instanceof UndergroundBelt && ((UndergroundBelt) building).isInput() != undergroundBelt.isInput() && ((UndergroundBelt) building).getDirection() == undergroundBelt.getDirection()) {
+                return (UndergroundBelt) building;
+            }
+
+            offset++;
+        }
+        return null;
     }
 
     private static void placeBeltFromTo(Blueprint bp, int startX, int startY, int length, int direction) {
@@ -103,23 +208,10 @@ public class BlueprintGenerator {
         Integer previousY = null;
         boolean isUnderground = false;
         for (int offset = 0; offset < length; offset++) {
-            int actualX = startX;
-            int actualY = startY;
+            Int2 actual = Direction.move(new Int2(startX, startY), offset, direction);
+            int actualX = actual.getX();
+            int actualY = actual.getY();
 
-            switch (direction) {
-                case UP:
-                    actualY -= offset;
-                    break;
-                case DOWN:
-                    actualY += offset;
-                    break;
-                case LEFT:
-                    actualX -= offset;
-                    break;
-                case RIGHT:
-                    actualX += offset;
-                    break;
-            }
 
             Building belt = isUnderground
                     ? new UndergroundBelt(actualX, actualY, direction, false)
@@ -175,8 +267,8 @@ public class BlueprintGenerator {
         return occupDirection == placeDirection;
     }
 
-    private static int findYPlaceForSection(Blueprint base, Blueprint sub) {
-        int y = 0;
+    private static int findYPlaceForSection(Blueprint base, Blueprint sub, int startY) {
+        int y = startY;
         while (!base.canPlace(sub, 0, y)) {
             y++;
         }
@@ -202,7 +294,7 @@ public class BlueprintGenerator {
             throw new RuntimeException("Not yet implemented!");
         }
         for (int i = 0; i < assemblingMachinesRequired; i++) {
-            for (int y = -2; y <= -2; y++) { //TODO was y <= 0
+            for (int y = -2; y <= 0; y++) { //TODO was y <= 0
                 for (int beltX = -inputBelts + 1; beltX <= 0; beltX++) {
                     subsection.addBuilding(new YellowBelt(beltX, y - i * 3, UP));
                 }
@@ -215,6 +307,11 @@ public class BlueprintGenerator {
             }
             subsection.addBuilding(new FastInserter(5, -i * 3, RIGHT));
         }
+
+        for (int beltX = -inputBelts + 1; beltX <= 0; beltX++) {
+            subsection.addBuilding(new UndergroundBelt(beltX, 1, UP, false));
+        }
+        subsection.addBuilding(new UndergroundBelt(6, 1, DOWN, true));
 
         return subsection;
     }
