@@ -33,6 +33,7 @@ public class ProductionLinePlanner {
 
         usedRecipes.entrySet().stream().map(e -> new ProductionStep(e.getKey(), e.getValue())).forEach(productionLine::addProductionStep);
 
+        productionLine.clearUnusedInputMaterials();
         return productionLine;
     }
 

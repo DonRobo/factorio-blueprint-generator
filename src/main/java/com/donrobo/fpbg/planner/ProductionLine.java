@@ -45,12 +45,24 @@ public class ProductionLine {
         inputMaterials.stream().map(Item::getName).forEach(this.inputMaterials::add);
     }
 
-    public void removeUnusedInputMaterials() {
+    public void clearUnusedInputMaterials() {
         List<String> usedInputMaterials = inputMaterials.stream().filter(mat ->
                 productionSteps.stream().anyMatch(ps -> isRequiredBy(mat, ps))
         ).collect(Collectors.toList());
 
         inputMaterials.clear();
         inputMaterials.addAll(usedInputMaterials);
+    }
+
+    public List<String> getAllIngredients() {
+        List<String> allIngredients = new ArrayList<>();
+
+        allIngredients.addAll(inputMaterials);
+
+        for (ProductionStep ps : productionSteps) {
+            ps.getIngredientsPerSecond().stream().map(i -> i.getItem().getName()).forEach(allIngredients::add);
+        }
+
+        return allIngredients.stream().distinct().collect(Collectors.toList());
     }
 }

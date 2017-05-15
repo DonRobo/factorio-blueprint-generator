@@ -16,12 +16,20 @@ public class BlueprintGenerator {
 
         Map<String, Integer> outputs = new HashMap<>();
         Map<String, Integer> productionStepIndexes = new HashMap<>();
+        Map<String, Integer> inputIndexes = new HashMap<>();
         Blueprint assemblyMachines = new Blueprint();
         int xOffset = 0;
         for (ProductionStep productionStep : pl.getProductionSteps()) {
             Blueprint bs = generateSubsectionFor(productionStep);
             assemblyMachines.addBlueprint(bs, xOffset - bs.getMinimumX(), -bs.getMaximumY());
             productionStepIndexes.put(productionStep.getRecipe().getName(), xOffset);
+
+            int count = 0;
+            int finalXOffset = xOffset;
+            productionStep.getIngredientsPerSecond().stream().map(i -> i.getItem().getName()).forEach(ingredient -> {
+                inputIndexes.put(ingredient, finalXOffset + count / 2);
+            });
+
             xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 2;
             if (productionStep.getResultPerSecond().size() != 1) {
                 throw new RuntimeException("Multiple outputs not supported!");
@@ -31,9 +39,34 @@ public class BlueprintGenerator {
 
         blueprint.addBlueprint(assemblyMachines, 0, 0);
 
-        List<String> rawInputs = findRawInputs(pl);
+        Set<String> rawInputs = new HashSet<>(pl.getInputMaterials());
 
+        List<String> inputs = pl.getAllIngredients();
 
+        for (String input : inputs) {
+            Blueprint belts = new Blueprint();
+            boolean isRaw = rawInputs.contains(input);
+
+            int startX = isRaw ? -1 : outputs.get(input);
+            int endX = inputIndexes.get(input);
+
+            if (!isRaw) {
+                belts.addBuilding(new UndergroundBelt(startX, -1, DOWN, false));
+                blueprint.addBuilding(new UndergroundBelt(startX, 1, DOWN, true));
+            }
+            placeBeltFromTo(belts, startX, 0, endX - startX, RIGHT);
+
+            int yPlacement = findYPlaceForSection(blueprint, belts, 2);
+//            yPlacement++;
+//            if (yPlacement == 1) {
+//                yPlacement++;
+//            }
+//            if (yPlacement >= 2) {
+////                belts.addBuilding(new UndergroundBelt(endX, -1, UP, true));
+////                blueprint.addBuilding(new UndergroundBelt(endX, 1, UP, false));
+//            }
+            blueprint.addBlueprint(belts, 0, yPlacement);
+        }
 
         return blueprint;
     }
@@ -115,8 +148,8 @@ public class BlueprintGenerator {
         return occupDirection == placeDirection;
     }
 
-    private static int findYPlaceForSection(Blueprint base, Blueprint sub) {
-        int y = 0;
+    private static int findYPlaceForSection(Blueprint base, Blueprint sub, int startY) {
+        int y = startY;
         while (!base.canPlace(sub, 0, y)) {
             y++;
         }
