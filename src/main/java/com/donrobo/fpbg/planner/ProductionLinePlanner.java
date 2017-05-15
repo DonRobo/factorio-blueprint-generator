@@ -16,6 +16,9 @@ public class ProductionLinePlanner {
     }
 
     public ProductionLine getProductionLineFor(FractionalItemStack is, List<Item> allowedInput) {
+        ProductionLine productionLine = new ProductionLine();
+        productionLine.addInputMaterials(allowedInput);
+
         Map<Recipe, Double> usedRecipes = new HashMap<>();
 
         Map<String, Double> required = new HashMap<>();
@@ -28,7 +31,9 @@ public class ProductionLinePlanner {
                 r -> String.format(Locale.ENGLISH, "%s*%.1f", r.getKey().getName(), r.getValue())
         ).collect(Collectors.toList()).toString()));
 
-        return new ProductionLine(usedRecipes.entrySet().stream().map(e -> new ProductionStep(e.getKey(), e.getValue())).collect(Collectors.toList()));
+        usedRecipes.entrySet().stream().map(e -> new ProductionStep(e.getKey(), e.getValue())).forEach(productionLine::addProductionStep);
+
+        return productionLine;
     }
 
     private void resolveRecipes(List<Item> allowedInput, Map<Recipe, Double> usedRecipes, Map<String, Double> required) {
