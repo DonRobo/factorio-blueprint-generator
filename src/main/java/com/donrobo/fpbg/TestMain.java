@@ -14,6 +14,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TestMain {
 
@@ -21,10 +22,18 @@ public class TestMain {
         File file = new File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\");
         List<Recipe> recipes = RecipeLoader.loadRecipes(file);
 
+        System.out.println(String.join(",", recipes.stream().map(Recipe::getName).collect(Collectors.toList())));
+
         ProductionLinePlanner productionLinePlanner = new ProductionLinePlanner(recipes);
 
-        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("assembling-machine-1")),
-                ProductionLinePlanner.getDefaultAllowedItems());
+        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
+                new FractionalItemStack(1, new Item("transport-belt")),
+                new FractionalItemStack(1, new Item("splitter")),
+                new FractionalItemStack(1, new Item("underground-belt")),
+                new FractionalItemStack(1, new Item("transport-belt")),
+                new FractionalItemStack(1, new Item("splitter")),
+                new FractionalItemStack(1, new Item("underground-belt"))
+        );
         System.out.println(productionLine);
 
         Blueprint blueprint = BlueprintGenerator.generateBlueprint(productionLine);

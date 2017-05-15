@@ -15,18 +15,20 @@ public class ProductionLinePlanner {
         this.recipes = recipes;
     }
 
-    public ProductionLine getProductionLineFor(FractionalItemStack is, List<Item> allowedInput) {
+    public ProductionLine getProductionLineFor(List<Item> allowedInput, FractionalItemStack... requests) {
         ProductionLine productionLine = new ProductionLine();
         productionLine.addInputMaterials(allowedInput);
 
         Map<Recipe, Double> usedRecipes = new HashMap<>();
 
         Map<String, Double> required = new HashMap<>();
-        required.put(is.getItem().getName(), is.getCount());
+        Arrays.stream(requests).forEach(r -> required.put(r.getItem().getName(), r.getCount()));
 
         resolveRecipes(allowedInput, usedRecipes, required);
 
-        System.out.println(String.format("Required items for %s: %s", is.getItem(), required));
+        System.out.println(String.format("Required items for %s: %s",
+                String.join(",", Arrays.stream(requests).map(req -> req.getItem().getName()).collect(Collectors.toList())),
+                required));
         System.out.println(String.format("Using the recipes: %s", usedRecipes.entrySet().stream().map(
                 r -> String.format(Locale.ENGLISH, "%s*%.1f", r.getKey().getName(), r.getValue())
         ).collect(Collectors.toList()).toString()));
