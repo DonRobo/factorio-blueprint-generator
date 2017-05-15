@@ -30,9 +30,9 @@ public class TestMain {
                 new FractionalItemStack(1, new Item("transport-belt")),
                 new FractionalItemStack(1, new Item("splitter")),
                 new FractionalItemStack(1, new Item("underground-belt")),
-                new FractionalItemStack(1, new Item("transport-belt")),
-                new FractionalItemStack(1, new Item("splitter")),
-                new FractionalItemStack(1, new Item("underground-belt"))
+                new FractionalItemStack(1, new Item("fast-transport-belt")),
+                new FractionalItemStack(1, new Item("fast-splitter")),
+                new FractionalItemStack(1, new Item("fast-underground-belt"))
         );
         System.out.println(productionLine);
 
