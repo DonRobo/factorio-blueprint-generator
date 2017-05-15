@@ -1,6 +1,7 @@
 package com.donrobo.fpbg.blueprint;
 
 import com.donrobo.fpbg.blueprint.building.Building;
+import com.donrobo.fpbg.data.Int2;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -67,6 +68,10 @@ public class Blueprint {
             throw new RuntimeException("Trying to place building on top of building!");
         }
         buildings.add(building);
+    }
+
+    public boolean isOccupied(Int2 pos) {
+        return isOccupied(pos.getX(), pos.getY());
     }
 
     public boolean isOccupied(int x, int y) {
@@ -143,4 +148,11 @@ public class Blueprint {
         return true;
     }
 
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    public Building get(Int2 pos) {
+        return get(pos.getX(), pos.getY());
+    }
 }

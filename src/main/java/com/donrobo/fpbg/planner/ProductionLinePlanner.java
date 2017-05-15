@@ -103,7 +103,10 @@ public class ProductionLinePlanner {
                 "crude-oil",
                 "heavy-oil",
                 "light-oil",
-                "petroleum-gas"
+                "petroleum-gas",
+                "water",
+                "sulfuric-acid",
+                "sulfuric"
         };
         return Arrays.stream(allowed).map(Item::new).collect(Collectors.toList());
     }
