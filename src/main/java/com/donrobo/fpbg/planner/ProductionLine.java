@@ -57,12 +57,14 @@ public class ProductionLine {
     public List<String> getAllIngredients() {
         List<String> allIngredients = new ArrayList<>();
 
-        allIngredients.addAll(inputMaterials);
-
         for (ProductionStep ps : productionSteps) {
             ps.getIngredientsPerSecond().stream().map(i -> i.getItem().getName()).forEach(allIngredients::add);
         }
 
         return allIngredients.stream().distinct().collect(Collectors.toList());
+    }
+
+    public List<ProductionStep> getProductionStepsThatRequire(String input) {
+        return productionSteps.stream().filter(ps -> ps.requires(input)).collect(Collectors.toList());
     }
 }

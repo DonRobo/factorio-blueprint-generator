@@ -3,6 +3,7 @@ package com.donrobo.fpbg.blueprint;
 import com.donrobo.fpbg.blueprint.building.*;
 import com.donrobo.fpbg.planner.ProductionLine;
 import com.donrobo.fpbg.planner.ProductionStep;
+import com.donrobo.fpbg.util.MultipleEntryMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ public class BlueprintGenerator {
 
         Map<String, Integer> outputs = new HashMap<>();
         Map<String, Integer> productionStepIndexes = new HashMap<>();
-        Map<String, Integer> inputIndexes = new HashMap<>();
+        MultipleEntryMap<String, Integer> inputIndexes = new MultipleEntryMap<>();
         Blueprint assemblyMachines = new Blueprint();
         int xOffset = 0;
         for (ProductionStep productionStep : pl.getProductionSteps()) {
@@ -30,11 +31,11 @@ public class BlueprintGenerator {
                 inputIndexes.put(ingredient, finalXOffset + count / 2);
             });
 
-            xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 2;
+            xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 3;
             if (productionStep.getResultPerSecond().size() != 1) {
                 throw new RuntimeException("Multiple outputs not supported!");
             }
-            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 2);
+            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 3);
         }
 
         blueprint.addBlueprint(assemblyMachines, 0, 0);
@@ -48,27 +49,87 @@ public class BlueprintGenerator {
             boolean isRaw = rawInputs.contains(input);
 
             int startX = isRaw ? -1 : outputs.get(input);
-            int endX = inputIndexes.get(input);
+            int endX = inputIndexes.get(input).stream().mapToInt(i -> i).max().orElse(0);
 
             if (!isRaw) {
                 belts.addBuilding(new UndergroundBelt(startX, -1, DOWN, false));
-                blueprint.addBuilding(new UndergroundBelt(startX, 1, DOWN, true));
             }
             placeBeltFromTo(belts, startX, 0, endX - startX, RIGHT);
 
-            int yPlacement = findYPlaceForSection(blueprint, belts, 2);
-//            yPlacement++;
-//            if (yPlacement == 1) {
-//                yPlacement++;
-//            }
-//            if (yPlacement >= 2) {
-////                belts.addBuilding(new UndergroundBelt(endX, -1, UP, true));
-////                blueprint.addBuilding(new UndergroundBelt(endX, 1, UP, false));
-//            }
+            List<ProductionStep> productionSteps = pl.getProductionStepsThatRequire(input);
+            List<Integer> endings = inputIndexes.get(input);
+            for (int i = 0; i < endings.size(); i++) {
+                List<String> ingredients = productionSteps.get(i).getIngredientsPerSecond().stream().map(ing -> ing.getItem().getName()).collect(Collectors.toList());
+                int ingIndex = ingredients.indexOf(input);
+
+                int ending = endings.get(i);
+                boolean last = i == (endings.size() - 1);
+
+                if (ingIndex % 2 == 0 && ingIndex == (ingredients.size() - 1)) {
+                    ending += ingIndex / 2;
+                    if (!last) {
+                        belts.remove(ending - 1, 0);
+                        belts.addBuilding(new Splitter(ending - 1, -1, RIGHT));
+                        belts.addBuilding(new YellowBelt(ending, -1, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -2, UP, true));
+                    } else {
+                        belts.addBuilding(new YellowBelt(ending, 0, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -1, UP, true));
+                    }
+                } else if (ingIndex % 2 == 0) {
+                    if (!last) {
+                        belts.remove(ending - 2, 0);
+                        belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
+                        belts.addBuilding(new YellowBelt(ending - 1, -1, UP));
+                        belts.addBuilding(new YellowBelt(ending - 1, -2, RIGHT));
+                        belts.addBuilding(new UndergroundBelt(ending, -1, UP, false));
+                        belts.addBuilding(new YellowBelt(ending, -2, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -3, UP, true));
+                    } else {
+                        belts.remove(ending - 1, 0);
+                        belts.addBuilding(new YellowBelt(ending - 1, 0, UP));
+                        belts.addBuilding(new YellowBelt(ending - 1, -1, RIGHT));
+                        belts.addBuilding(new UndergroundBelt(ending, 0, UP, false));
+                        belts.addBuilding(new YellowBelt(ending, -1, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -2, UP, true));
+                    }
+                } else {
+                    if (!last) {
+//                        belts.remove(ending - 2, 0);
+//                        belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
+//                        belts.addBuilding(new YellowBelt(ending - 1, -1, UP));
+//                        belts.addBuilding(new YellowBelt(ending - 1, -2, RIGHT));
+//                        belts.addBuilding(new UndergroundBelt(ending, -1, UP, false));
+//                        belts.addBuilding(new YellowBelt(ending, -2, UP));
+//                        belts.addBuilding(new UndergroundBelt(ending, -3, UP, true));
+                    } else {
+                        belts.remove(ending - 1, 0);
+                        belts.addBuilding(new UndergroundBelt(ending - 1, 0, RIGHT, true));
+                        belts.addBuilding(new UndergroundBelt(ending + 1, 0, RIGHT, false));
+                        belts.addBuilding(new YellowBelt(ending + 2, 0, UP));
+                        belts.addBuilding(new YellowBelt(ending + 2, -1, LEFT));
+                        belts.addBuilding(new YellowBelt(ending + 1, -1, LEFT));
+                        belts.addBuilding(new YellowBelt(ending, -1, UP));
+                        belts.addBuilding(new UndergroundBelt(ending, -2, UP, true));
+                        belts.addBuilding(new UndergroundBelt(ending, 0, UP, false));
+                    }
+
+                }
+            }
+
+            int yPlacement = findYPlaceForSection(blueprint, belts, 2 - belts.getMinimumY());
             blueprint.addBlueprint(belts, 0, yPlacement);
         }
 
+        fixUndergroundBelts(blueprint);
+
         return blueprint;
+    }
+
+    private static void fixUndergroundBelts(Blueprint blueprint) {
+        //TODO replace orphans with belts
+        //TODO replace by belts where possible
+        //TODO fix too long underground belts
     }
 
     private static void placeBeltFromTo(Blueprint bp, int startX, int startY, int length, int direction) {
@@ -188,6 +249,11 @@ public class BlueprintGenerator {
             }
             subsection.addBuilding(new FastInserter(5, -i * 3, RIGHT));
         }
+
+        for (int beltX = -inputBelts + 1; beltX <= 0; beltX++) {
+            subsection.addBuilding(new UndergroundBelt(beltX, 1, UP, false));
+        }
+        subsection.addBuilding(new UndergroundBelt(6, 1, DOWN, true));
 
         return subsection;
     }

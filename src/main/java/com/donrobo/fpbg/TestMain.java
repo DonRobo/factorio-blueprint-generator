@@ -23,7 +23,7 @@ public class TestMain {
 
         ProductionLinePlanner productionLinePlanner = new ProductionLinePlanner(recipes);
 
-        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("assembling-machine-1")),
+        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(new FractionalItemStack(1, new Item("assembling-machine-2")),
                 ProductionLinePlanner.getDefaultAllowedItems());
         System.out.println(productionLine);
 

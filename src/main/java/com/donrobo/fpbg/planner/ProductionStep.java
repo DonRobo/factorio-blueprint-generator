@@ -21,4 +21,8 @@ public class ProductionStep {
     public List<FractionalItemStack> getIngredientsPerSecond() {
         return recipe.getIngredients().stream().map(is -> new FractionalItemStack((is.getCount() * getCraftingSpeed()) / recipe.getEnergyRequired(), is.getItem())).collect(Collectors.toList());
     }
+
+    public boolean requires(String input) {
+        return recipe.getIngredients().stream().map(i -> i.getItem().getName()).anyMatch(input::equals);
+    }
 }
