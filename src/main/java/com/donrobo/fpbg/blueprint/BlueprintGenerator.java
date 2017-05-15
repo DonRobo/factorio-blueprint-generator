@@ -33,67 +33,7 @@ public class BlueprintGenerator {
 
         List<String> rawInputs = findRawInputs(pl);
 
-        for (ProductionStep productionStep : pl.getProductionSteps()) {
-            List<String> inputs = productionStep.getIngredientsPerSecond().stream().map(is -> is.getItem().getName()).collect(Collectors.toList());
-            for (int i = 0; i < inputs.size(); i++) {
-                String input = inputs.get(i);
-                if (rawInputs.contains(input)) {
-                    continue;//TODO
-                } else {
-                    Integer productionIndex = productionStepIndexes.get(productionStep.getRecipe().getName());
-                    int outputX = outputs.get(input);
 
-                    boolean comingFromRight = i % 2 == 0;
-                    boolean goingRight = outputX < productionIndex;
-
-                    Blueprint bs = new Blueprint();
-                    if (goingRight) {
-                        bs.addBuilding(new Splitter(outputX, 0, DOWN));
-                        bs.addBuilding(new YellowBelt(outputX, 1, DOWN));
-                        if (!comingFromRight) {
-                            placeBeltFromTo(bs, outputX + 1, 1, productionIndex - outputX - 1, RIGHT);
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 2, UP));
-                        } else {
-                            placeBeltFromTo(bs, outputX + 1, 1, productionIndex - outputX - 2, RIGHT);
-                            bs.addBuilding(new UndergroundBelt(productionIndex - 1, 1, RIGHT, true));
-                            bs.addBuilding(new UndergroundBelt(productionIndex + 1, 1, RIGHT, false));
-                            bs.addBuilding(new YellowBelt(productionIndex + 2, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex + 2, 0, LEFT));
-                            bs.addBuilding(new YellowBelt(productionIndex + 1, 0, LEFT));
-
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                        }
-                    } else {
-                        bs.addBuilding(new Splitter(outputX - 1, 0, DOWN));
-                        bs.addBuilding(new YellowBelt(outputX, 1, DOWN));
-                        if (comingFromRight) {
-                            placeBeltFromTo(bs, outputX - 1, 1, outputX - productionIndex - 1, LEFT);
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 2, UP));
-                        } else {
-                            placeBeltFromTo(bs, outputX - 1, 1, outputX - productionIndex - 2, LEFT);
-                            bs.addBuilding(new UndergroundBelt(productionIndex + 1, 1, LEFT, true));
-                            bs.addBuilding(new UndergroundBelt(productionIndex - 1, 1, LEFT, false));
-                            bs.addBuilding(new YellowBelt(productionIndex - 2, 1, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex - 2, 0, RIGHT));
-                            bs.addBuilding(new YellowBelt(productionIndex - 1, 0, RIGHT));
-
-                            bs.addBuilding(new YellowBelt(productionIndex, 0, UP));
-                            bs.addBuilding(new YellowBelt(productionIndex, 1, UP));
-                        }
-                    }
-
-                    int yOffset = findYPlaceForSection(blueprint, bs);
-                    blueprint.addBlueprint(bs, 0, yOffset);
-                    placeBeltFromTo(blueprint, productionIndex, yOffset, yOffset, UP);
-                    placeBeltFromTo(blueprint, outputX, 0, yOffset, DOWN);
-                }
-            }
-        }
 
         return blueprint;
     }
