@@ -12,6 +12,7 @@ import static com.donrobo.fpbg.blueprint.Direction.*;
 
 public class BlueprintGenerator {
 
+    @SuppressWarnings("Duplicates")
     public static Blueprint generateBlueprint(ProductionLine pl) {
         Blueprint blueprint = new Blueprint();
 
@@ -77,43 +78,40 @@ public class BlueprintGenerator {
                         belts.addBuilding(new UndergroundBelt(ending, -1, UP, true));
                     }
                 } else if (ingIndex % 2 == 0) {
+                    int offset;
                     if (!last) {
                         belts.remove(ending - 2, 0);
                         belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
-                        belts.addBuilding(new YellowBelt(ending - 1, -1, UP));
-                        belts.addBuilding(new YellowBelt(ending - 1, -2, RIGHT));
-                        belts.addBuilding(new UndergroundBelt(ending, -1, UP, false));
-                        belts.addBuilding(new YellowBelt(ending, -2, UP));
-                        belts.addBuilding(new UndergroundBelt(ending, -3, UP, true));
+                        offset = 1;
                     } else {
                         belts.remove(ending - 1, 0);
-                        belts.addBuilding(new YellowBelt(ending - 1, 0, UP));
-                        belts.addBuilding(new YellowBelt(ending - 1, -1, RIGHT));
-                        belts.addBuilding(new UndergroundBelt(ending, 0, UP, false));
-                        belts.addBuilding(new YellowBelt(ending, -1, UP));
-                        belts.addBuilding(new UndergroundBelt(ending, -2, UP, true));
+                        offset = 0;
                     }
+                    belts.addBuilding(new YellowBelt(ending - 1, 0 - offset, UP));
+                    belts.addBuilding(new YellowBelt(ending - 1, -1 - offset, RIGHT));
+                    belts.addBuilding(new UndergroundBelt(ending, 0 - offset, UP, false));
+                    belts.addBuilding(new YellowBelt(ending, -1 - offset, UP));
+                    belts.addBuilding(new UndergroundBelt(ending, -2 - offset, UP, true));
+
                 } else {
+                    int offset;
                     if (!last) {
-//                        belts.remove(ending - 2, 0);
-//                        belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
-//                        belts.addBuilding(new YellowBelt(ending - 1, -1, UP));
-//                        belts.addBuilding(new YellowBelt(ending - 1, -2, RIGHT));
-//                        belts.addBuilding(new UndergroundBelt(ending, -1, UP, false));
-//                        belts.addBuilding(new YellowBelt(ending, -2, UP));
-//                        belts.addBuilding(new UndergroundBelt(ending, -3, UP, true));
+                        belts.remove(ending - 2, 0);
+                        belts.addBuilding(new Splitter(ending - 2, -1, RIGHT));
+                        offset = 1;
                     } else {
                         belts.remove(ending - 1, 0);
-                        belts.addBuilding(new UndergroundBelt(ending - 1, 0, RIGHT, true));
-                        belts.addBuilding(new UndergroundBelt(ending + 1, 0, RIGHT, false));
-                        belts.addBuilding(new YellowBelt(ending + 2, 0, UP));
-                        belts.addBuilding(new YellowBelt(ending + 2, -1, LEFT));
-                        belts.addBuilding(new YellowBelt(ending + 1, -1, LEFT));
-                        belts.addBuilding(new YellowBelt(ending, -1, UP));
-                        belts.addBuilding(new UndergroundBelt(ending, -2, UP, true));
-                        belts.addBuilding(new UndergroundBelt(ending, 0, UP, false));
+                        offset = 0;
                     }
 
+                    belts.addBuilding(new UndergroundBelt(ending - 1, 0 - offset, RIGHT, true));
+                    belts.addBuilding(new UndergroundBelt(ending + 1, 0 - offset, RIGHT, false));
+                    belts.addBuilding(new YellowBelt(ending + 2, 0 - offset, UP));
+                    belts.addBuilding(new YellowBelt(ending + 2, -1 - offset, LEFT));
+                    belts.addBuilding(new YellowBelt(ending + 1, -1 - offset, LEFT));
+                    belts.addBuilding(new YellowBelt(ending, -1 - offset, UP));
+                    belts.addBuilding(new UndergroundBelt(ending, -2 - offset, UP, true));
+                    belts.addBuilding(new UndergroundBelt(ending, 0 - offset, UP, false));
                 }
             }
 
