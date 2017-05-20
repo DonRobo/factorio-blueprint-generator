@@ -48,11 +48,20 @@ public class RecipeLoader {
 
                     String name = recipeElement.getString("name");
                     Boolean enabled = recipeElement.getBoolean("enabled");
+                    if (enabled == null) {
+                        enabled = false;
+                    }
                     List<ItemStack> ingredients = getIngredients(recipeElement);
                     List<ItemStack> result = getResult(recipeElement);
                     Double energyRequired = recipeElement.getDouble("energy_required");
                     HashMap<String, Object> extra = recipeElement.toRawJavaObject();
-                    recipes.add(new Recipe(name, enabled, ingredients, result, energyRequired, extra));
+                    if (result != null) {
+                        if (energyRequired != null) {
+                            recipes.add(new Recipe(name, enabled, ingredients, result, energyRequired, extra));
+                        } else {
+                            recipes.add(new Recipe(name, enabled, ingredients, result, extra));
+                        }
+                    }
                 }
             }
 
@@ -67,7 +76,6 @@ public class RecipeLoader {
 
     private static List<ItemStack> getResult(MapElement recipeElement) {
         assert recipeElement.containsKey("result") != recipeElement.containsKey("results");
-
 
         if (recipeElement.containsKey("result")) {
             String resultName = recipeElement.getString("result");
