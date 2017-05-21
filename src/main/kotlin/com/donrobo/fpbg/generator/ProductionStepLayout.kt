@@ -1,6 +1,9 @@
 package com.donrobo.fpbg.generator
 
 import com.donrobo.fpbg.data.Recipe
+import com.donrobo.fpbg.generator.data.BeltIoType
+import com.donrobo.fpbg.generator.data.BeltSide
+import com.donrobo.fpbg.generator.data.IndexedBeltIo
 
 class ProductionStepLayout(val recipe: Recipe, val resultsPerSecond: Double) {
 

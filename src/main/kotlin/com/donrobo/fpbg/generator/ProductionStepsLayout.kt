@@ -1,5 +1,7 @@
 package com.donrobo.fpbg.generator
 
+import com.donrobo.fpbg.generator.data.BeltIoType
+import com.donrobo.fpbg.generator.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionStep
 
 class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
