@@ -17,7 +17,7 @@ class ProductionStepLayout(val recipe: Recipe) {
                 1, 2 -> 1
                 3, 4 -> 2
                 else -> TODO("More than 4 inputs not supported yet")
-            }
+            } + 1 //for output
             val assemblingMachineWidth = 3
             val inserterCount = 2
 
@@ -32,7 +32,7 @@ class ProductionStepLayout(val recipe: Recipe) {
             recipe.ingredients.indices.mapTo(list) { index ->
                 Input(type = recipe.ingredients[index].item.name,
                         beltIndex = index / 2,
-                        beltSide = if (index + 1 == recipe.ingredients.size) BeltSide.BOTH else if (index % 2 == 0) BeltSide.LEFT else BeltSide.RIGHT)
+                        beltSide = if (index + 1 == recipe.ingredients.size && index % 2 == 0) BeltSide.BOTH else if (index % 2 == 0) BeltSide.LEFT else BeltSide.RIGHT)
             }
 
             return list
