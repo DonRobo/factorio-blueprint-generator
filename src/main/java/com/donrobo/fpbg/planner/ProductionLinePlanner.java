@@ -45,23 +45,20 @@ public class ProductionLinePlanner {
             if (optionalItemToProduce.isPresent()) {
                 String itemToProduce = optionalItemToProduce.get();
                 double requiredCount = required.get(itemToProduce);
-                Recipe usefulRecipe = findRecipeThatProduce(itemToProduce);
+                Recipe usefulRecipe = findRecipeThatProduces(itemToProduce);
                 if (usefulRecipe == null) {
                     throw new RuntimeException("Couldn't find recipe for " + itemToProduce);
                 }
-                Integer resultCount = usefulRecipe.getResult().stream().filter(
-                        i -> i.getItem().getName().equals(itemToProduce)
-                ).map(ItemStack::getCount).findAny().orElse(0);
                 for (ItemStack ingredient : usefulRecipe.getIngredients()) {
                     Double requiredIngredientCount = required.get(ingredient.getItem().getName());
                     if (requiredIngredientCount == null) {
                         requiredIngredientCount = 0.0;
                     }
-                    requiredIngredientCount += (ingredient.getCount() * requiredCount) / resultCount.doubleValue();
+                    requiredIngredientCount += (ingredient.getCount() * requiredCount) / ((Integer) usefulRecipe.getResult().getCount()).doubleValue();
                     required.put(ingredient.getItem().getName(), requiredIngredientCount);
                 }
                 required.remove(itemToProduce);
-                Double craftingSpeed = usefulRecipe.getEnergyRequired() / resultCount;
+                Double craftingSpeed = usefulRecipe.getEnergyRequired() / usefulRecipe.getResult().getCount();
                 usedRecipes.put(usefulRecipe, craftingSpeed * requiredCount);
             } else {
                 throw new RuntimeException("Should never get here!");
@@ -79,7 +76,7 @@ public class ProductionLinePlanner {
         return list.stream().noneMatch(i -> i.getName().equals(item));
     }
 
-    private Recipe findRecipeThatProduce(String item) {
+    private Recipe findRecipeThatProduces(String item) {
         List<Recipe> recipes = findRecipesThatProduce(item);
 
         if (recipes.size() == 1) {
@@ -92,7 +89,7 @@ public class ProductionLinePlanner {
     }
 
     private List<Recipe> findRecipesThatProduce(String item) {
-        return recipes.stream().filter(r -> r.isProducingItem(item)).collect(Collectors.toList());
+        return recipes.stream().filter(r -> r.getResult().getItem().getName().equals(item)).collect(Collectors.toList());
     }
 
     public static List<Item> getDefaultAllowedItems() {

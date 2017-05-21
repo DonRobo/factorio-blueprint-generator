@@ -7,7 +7,10 @@ import com.donrobo.fpbg.parser.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class RecipeLoader {
 
@@ -52,7 +55,7 @@ public class RecipeLoader {
                         enabled = false;
                     }
                     List<ItemStack> ingredients = getIngredients(recipeElement);
-                    List<ItemStack> result = getResult(recipeElement);
+                    ItemStack result = getResult(recipeElement);
                     Double energyRequired = recipeElement.getDouble("energy_required");
                     HashMap<String, Object> extra = recipeElement.toRawJavaObject();
                     if (result != null) {
@@ -74,14 +77,14 @@ public class RecipeLoader {
         }
     }
 
-    private static List<ItemStack> getResult(MapElement recipeElement) {
+    private static ItemStack getResult(MapElement recipeElement) {
         assert recipeElement.containsKey("result") != recipeElement.containsKey("results");
 
         if (recipeElement.containsKey("result")) {
             String resultName = recipeElement.getString("result");
             int count = recipeElement.containsKey("result_count") ? recipeElement.getInt("result_count") : 1;
 
-            return Collections.singletonList(new ItemStack(count, new Item(resultName)));
+            return new ItemStack(count, new Item(resultName));
         } else if (recipeElement.containsKey("results")) {
             List<ItemStack> itemStacks = new ArrayList<>();
 
@@ -94,7 +97,14 @@ public class RecipeLoader {
                 itemStacks.add(new ItemStack(count, new Item(name)));
             }
 
-            return itemStacks;
+            if (itemStacks.size() > 1) {
+                return null;
+//                throw new UnsupportedOperationException("Multiple results not supported");
+            } else if (itemStacks.size() == 1) {
+                return itemStacks.get(0);
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

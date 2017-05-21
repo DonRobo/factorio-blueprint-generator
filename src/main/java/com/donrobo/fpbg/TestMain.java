@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 public class TestMain {
 
     public static void main(String[] args) throws IOException {
-        File file = new File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\");
+//        File file = new File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\");
+        File file = new File("D:\\Games\\Steam\\steamapps\\common\\Factorio\\");
         List<Recipe> recipes = RecipeLoader.loadRecipes(file);
 
         System.out.println(String.join(",", recipes.stream().map(Recipe::getName).collect(Collectors.toList())));

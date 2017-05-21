@@ -34,10 +34,7 @@ public class BlueprintGenerator {
             });
 
             xOffset = bs.getMaximumX() + xOffset - bs.getMinimumX() + 3;
-            if (productionStep.getResultPerSecond().size() != 1) {
-                throw new RuntimeException("Multiple outputs not supported!");
-            }
-            outputs.put(productionStep.getResultPerSecond().get(0).getItem().getName(), xOffset - 3);
+            outputs.put(productionStep.getResultPerSecond().getItem().getName(), xOffset - 3);
         }
 
         blueprint.addBlueprint(assemblyMachines, 0, 0);
@@ -280,7 +277,7 @@ public class BlueprintGenerator {
         pl.getProductionSteps().forEach(ps -> ps.getIngredientsPerSecond().forEach(is -> inputs.add(is.getItem().getName()))); //all inputs
 
         Set<String> outputs = new HashSet<>();
-        pl.getProductionSteps().forEach(ps -> ps.getResultPerSecond().forEach(is -> outputs.add(is.getItem().getName()))); //all inputs
+        pl.getProductionSteps().stream().map(ps -> ps.getResultPerSecond().getItem().getName()).forEach(outputs::add);
 
         return inputs.stream().filter(input -> !outputs.contains(input)).collect(Collectors.toList());
     }

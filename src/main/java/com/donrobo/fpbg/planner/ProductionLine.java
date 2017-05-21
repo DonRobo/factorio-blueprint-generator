@@ -19,11 +19,8 @@ public class ProductionLine {
         if (isUsingOnlyInputMaterials(productionStep)) {
             productionSteps.add(0, productionStep);
         } else {
-            List<FractionalItemStack> resultsPerSecond = productionStep.getResultPerSecond();
-            if (resultsPerSecond.size() != 1) {
-                throw new RuntimeException("Result count other than 1 not allowed");
-            }
-            String result = resultsPerSecond.get(0).getItem().getName();
+            FractionalItemStack resultsPerSecond = productionStep.getResultPerSecond();
+            String result = resultsPerSecond.getItem().getName();
             int index = 0;
             while (index < productionSteps.size() && !isRequiredBy(result, productionSteps.get(index))) {
                 index++;

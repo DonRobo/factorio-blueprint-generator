@@ -2,39 +2,28 @@ package com.donrobo.fpbg.generator
 
 import com.donrobo.fpbg.data.Recipe
 
+class ProductionStepLayout(val recipe: Recipe, val resultsPerSecond: Double) {
 
-enum class BeltSide {
-    LEFT, RIGHT, BOTH
-}
-
-data class Input(val beltIndex: Int, val beltSide: BeltSide, val type: String)
-
-class ProductionStepLayout(val recipe: Recipe) {
-    val width: Int
+    val productionStepLayoutComponents: List<ProductionStepLayoutComponent>
         get() {
-            val belts = when (recipe.ingredients.size) {
-                0 -> TODO("No inputs? Does this exist?")
-                1, 2 -> 1
-                3, 4 -> 2
-                else -> TODO("More than 4 inputs not supported yet")
-            } + 1 //for output
-            val assemblingMachineWidth = 3
-            val inserterCount = 2
+            val components: MutableList<ProductionStepLayoutComponent> = ArrayList()
 
-            return assemblingMachineWidth + inserterCount + belts
-        }
+            var remainingResultsPerSecond = resultsPerSecond
 
-    val height = 3
-    val inputs: List<Input>
-        get() {
-            val list = ArrayList<Input>()
-
-            recipe.ingredients.indices.mapTo(list) { index ->
-                Input(type = recipe.ingredients[index].item.name,
-                        beltIndex = index / 2,
-                        beltSide = if (index + 1 == recipe.ingredients.size && index % 2 == 0) BeltSide.BOTH else if (index % 2 == 0) BeltSide.LEFT else BeltSide.RIGHT)
+            while (remainingResultsPerSecond > 0) {
+                val component: ProductionStepLayoutComponent = ProductionStepLayoutComponent(recipe)
+                components.add(component)
+                remainingResultsPerSecond -= component.resultsPerSecond
             }
 
-            return list
+            return components
         }
+
+    val width = productionStepLayoutComponents.map { it.width }.max() ?: 0
+
+    val height = productionStepLayoutComponents.map { it.height }.sum()
+
+    val inputs = if (productionStepLayoutComponents.isNotEmpty()) productionStepLayoutComponents[0].inputs else emptyList()
+
+    val output = if (productionStepLayoutComponents.isNotEmpty()) productionStepLayoutComponents[0].output else IndexedBeltIo(-1, BeltIoType.OUTPUT, BeltSide.BOTH, "")
 }
