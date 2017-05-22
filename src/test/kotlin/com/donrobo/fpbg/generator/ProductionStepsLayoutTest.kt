@@ -1,8 +1,8 @@
 package com.donrobo.fpbg.generator
 
-import com.donrobo.fpbg.generator.data.BeltIoType
-import com.donrobo.fpbg.generator.data.BeltSide
-import com.donrobo.fpbg.generator.data.PositionalBeltIo
+import com.donrobo.fpbg.data.BeltIoType
+import com.donrobo.fpbg.data.BeltSide
+import com.donrobo.fpbg.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionStep
 import com.donrobo.fpbg.test.ItemStackGenerator
 import com.donrobo.fpbg.test.ProductionStepGenerator

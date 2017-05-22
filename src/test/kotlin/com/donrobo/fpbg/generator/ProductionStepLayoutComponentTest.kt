@@ -1,9 +1,9 @@
 package com.donrobo.fpbg.generator
 
+import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Item
 import com.donrobo.fpbg.data.ItemStack
 import com.donrobo.fpbg.data.Recipe
-import com.donrobo.fpbg.generator.data.BeltSide
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 

@@ -1,10 +1,6 @@
 package com.donrobo.fpbg.generator
 
-import com.donrobo.fpbg.data.AssemblingMachine
-import com.donrobo.fpbg.data.Recipe
-import com.donrobo.fpbg.generator.data.BeltIoType
-import com.donrobo.fpbg.generator.data.BeltSide
-import com.donrobo.fpbg.generator.data.IndexedBeltIo
+import com.donrobo.fpbg.data.*
 
 
 class ProductionStepLayoutComponent(val recipe: Recipe, val maxResultsPerSecond: Double) {

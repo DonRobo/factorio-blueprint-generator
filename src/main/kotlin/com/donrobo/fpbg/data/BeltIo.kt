@@ -1,4 +1,4 @@
-package com.donrobo.fpbg.generator.data
+package com.donrobo.fpbg.data
 
 enum class BeltSide {
     LEFT, RIGHT, BOTH
