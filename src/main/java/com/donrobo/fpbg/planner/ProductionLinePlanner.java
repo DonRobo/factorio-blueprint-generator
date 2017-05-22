@@ -82,7 +82,7 @@ public class ProductionLinePlanner {
         if (recipes.size() == 1) {
             return recipes.get(0);
         } else if (recipes.size() > 1) {
-            return recipes.get(0);//TODO
+            return recipes.get(0);//TODO choose the best available recipe
         } else {
             return null;
         }

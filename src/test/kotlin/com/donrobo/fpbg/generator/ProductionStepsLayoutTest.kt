@@ -24,7 +24,7 @@ class ProductionStepsLayoutTest : StringSpec() {
             ProductionStepsLayout(aProductionStepList(3, 1)).width shouldBe width3 + width1
             ProductionStepsLayout(aProductionStepList(3, 1, 1, 3, 2, 4)).width shouldBe width3 + width1 + width1 + width3 + width2 + width4
         }
-        //TODO
+        //TODO do height testing
 //        "Height calculation" {
 //            ProductionStepsLayout(listOf(productionStepGenerator.generate())).height shouldBe 3
 //        }

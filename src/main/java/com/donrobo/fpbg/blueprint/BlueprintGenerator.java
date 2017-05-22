@@ -156,7 +156,7 @@ public class BlueprintGenerator {
         for (UndergroundBelt undergroundBelt : undergroundBelts) {
             UndergroundBelt other = getOtherUndergroundHalf(blueprint, undergroundBelt);
             if (other == null) {
-                continue;//TODO
+                continue; //TODO remove orphan
             }
             int distance = Math.abs(other.getX() - undergroundBelt.getX()) + Math.abs(other.getY() - undergroundBelt.getY());
             if (distance == 1) {
@@ -210,7 +210,7 @@ public class BlueprintGenerator {
             Building occupation = bp.get(belt.getX(), belt.getY());
             if (occupation != null) {
                 if (!isUnderground && goingSameDirection(belt, occupation)) {
-                    if (previousX != null) { //TODO
+                    if (previousX != null) { //TODO improve belt generation (something about not enough space?)
                         bp.remove(previousX, previousY);
                         bp.addBuilding(new UndergroundBelt(previousX, previousY, direction, true));
                     } else {
@@ -285,7 +285,7 @@ public class BlueprintGenerator {
             throw new RuntimeException("Not yet implemented!");
         }
         for (int i = 0; i < assemblingMachinesRequired; i++) {
-            for (int y = -2; y <= 0; y++) { //TODO was y <= 0
+            for (int y = -2; y <= 0; y++) {
                 for (int beltX = -inputBelts + 1; beltX <= 0; beltX++) {
                     subsection.addBuilding(new YellowBelt(beltX, y - i * 3, UP));
                 }

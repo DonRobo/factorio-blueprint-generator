@@ -83,11 +83,11 @@ public class ElementFactory {
         } else if (token.matches(MORE_COMPLEX_FUNCTION_CALL.pattern)) {
             return new PrimitiveElement(token);
         } else if (token.matches(COMPLEX_CALCULATION.pattern)) {
-            return new PrimitiveElement(token); //TODO
+            return new PrimitiveElement(token); //TODO support complex calculation pattern (not really needed)
         } else if (token.matches(BOOLEAN.pattern)) {
             return new PrimitiveElement(Boolean.parseBoolean(token));
         } else if (token.matches(IDENTIFIER.pattern)) {
-            return new PrimitiveElement(token); //TODO
+            return new PrimitiveElement(token); //TODO support identifier pattern (not really needed)
         } else {
             throw new ParsingError("Didn't parse: " + token);
         }
