@@ -23,7 +23,7 @@ public interface Building {
         Int2 offsetInt2 = direction.move(new Int2(0, 0), offset);
 
         Building movedBuilding = building.move(offsetInt2.getX(), offsetInt2.getY());
-        return (T) movedBuilding; //TODO move to kotlin
+        return (T) movedBuilding;
     }
 
     Int2 getPosition();
