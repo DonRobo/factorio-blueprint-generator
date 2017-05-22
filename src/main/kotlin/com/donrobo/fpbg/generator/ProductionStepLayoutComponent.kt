@@ -1,12 +1,13 @@
 package com.donrobo.fpbg.generator
 
+import com.donrobo.fpbg.data.AssemblingMachine
 import com.donrobo.fpbg.data.Recipe
 import com.donrobo.fpbg.generator.data.BeltIoType
 import com.donrobo.fpbg.generator.data.BeltSide
 import com.donrobo.fpbg.generator.data.IndexedBeltIo
 
 
-class ProductionStepLayoutComponent(val recipe: Recipe) {
+class ProductionStepLayoutComponent(val recipe: Recipe, val maxResultsPerSecond: Double) {
     val width: Int
         get() {
             val belts = when (recipe.ingredients.size) {
@@ -39,7 +40,21 @@ class ProductionStepLayoutComponent(val recipe: Recipe) {
 
     val output = IndexedBeltIo(beltIndex = 0, type = BeltIoType.OUTPUT, beltSide = BeltSide.RIGHT, item = recipe.result.item.name)
 
-    val craftingSpeed = 0.75//TODO
+    val assemblingMachineType: AssemblingMachine get() {
+        val targetedCraftingSpeed = maxResultsPerSecond / recipe.result.count
+
+        return if (targetedCraftingSpeed >= AssemblingMachine.ASSEMBLING_MACHINE_3.craftingSpeed)
+            AssemblingMachine.ASSEMBLING_MACHINE_3
+        else if (targetedCraftingSpeed >= AssemblingMachine.ASSEMBLING_MACHINE_2.craftingSpeed)
+            AssemblingMachine.ASSEMBLING_MACHINE_2
+        else
+            AssemblingMachine.ASSEMBLING_MACHINE_1
+    }
+
+    val craftingSpeed: Double
+        get() {
+            return assemblingMachineType.craftingSpeed
+        }
 
     val resultsPerSecond = craftingSpeed * recipe.result.count
 }

@@ -14,7 +14,7 @@ class ProductionStepLayout(val recipe: Recipe, val resultsPerSecond: Double) {
             var remainingResultsPerSecond = resultsPerSecond
 
             while (remainingResultsPerSecond > 0) {
-                val component: ProductionStepLayoutComponent = ProductionStepLayoutComponent(recipe)
+                val component: ProductionStepLayoutComponent = ProductionStepLayoutComponent(recipe, remainingResultsPerSecond)
                 components.add(component)
                 remainingResultsPerSecond -= component.resultsPerSecond
             }

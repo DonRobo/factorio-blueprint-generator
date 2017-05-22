@@ -122,11 +122,6 @@ public class BlueprintGenerator {
     }
 
     private static void fixUndergroundBelts(Blueprint blueprint) {
-        //TODO replace orphans with belts DONE
-        //TODO replace by belts where possible DONE
-        //TODO replace zero length undergrounds
-        //TODO fix too long underground belts
-
         List<UndergroundBelt> undergroundBelts = blueprint.getBuildings().stream()
                 .filter(b -> (b instanceof UndergroundBelt)).map(b -> (UndergroundBelt) b).collect(Collectors.toList());
 
