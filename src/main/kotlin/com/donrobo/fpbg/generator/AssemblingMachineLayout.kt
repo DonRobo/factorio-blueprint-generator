@@ -6,7 +6,7 @@ import com.donrobo.fpbg.blueprint.building.*
 import com.donrobo.fpbg.data.*
 
 
-class ProductionStepLayoutComponent(val recipe: Recipe, val maxResultsPerSecond: Double) {
+class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Double) {
     val width: Int
         get() {
             val inputBelts = if (doubleInputBelts) 2 else 1

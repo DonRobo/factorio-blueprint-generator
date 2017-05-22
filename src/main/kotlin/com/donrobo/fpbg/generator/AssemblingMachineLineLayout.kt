@@ -6,16 +6,16 @@ import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.IndexedBeltIo
 import com.donrobo.fpbg.data.Recipe
 
-class ProductionStepLayout(val recipe: Recipe, val resultsPerSecond: Double) {
+class AssemblingMachineLineLayout(val recipe: Recipe, val resultsPerSecond: Double) {
 
-    val productionStepLayoutComponents: List<ProductionStepLayoutComponent>
+    val assemblingMachineLayouts: List<AssemblingMachineLayout>
         get() {
-            val components: MutableList<ProductionStepLayoutComponent> = ArrayList()
+            val components: MutableList<AssemblingMachineLayout> = ArrayList()
 
             var remainingResultsPerSecond = resultsPerSecond
 
             while (remainingResultsPerSecond > 0) {
-                val component: ProductionStepLayoutComponent = ProductionStepLayoutComponent(recipe, remainingResultsPerSecond)
+                val component: AssemblingMachineLayout = AssemblingMachineLayout(recipe, remainingResultsPerSecond)
                 components.add(component)
                 remainingResultsPerSecond -= component.resultsPerSecond
             }
@@ -23,19 +23,19 @@ class ProductionStepLayout(val recipe: Recipe, val resultsPerSecond: Double) {
             return components
         }
 
-    val width = productionStepLayoutComponents.map { it.width }.max() ?: 0
+    val width = assemblingMachineLayouts.map { it.width }.max() ?: 0
 
-    val height = productionStepLayoutComponents.map { it.height }.sum()
+    val height = assemblingMachineLayouts.map { it.height }.sum()
 
-    val inputs = if (productionStepLayoutComponents.isNotEmpty()) productionStepLayoutComponents[0].inputs else emptyList()
+    val inputs = if (assemblingMachineLayouts.isNotEmpty()) assemblingMachineLayouts[0].inputs else emptyList()
 
-    val output = if (productionStepLayoutComponents.isNotEmpty()) productionStepLayoutComponents[0].output else IndexedBeltIo(-1, BeltIoType.OUTPUT, BeltSide.BOTH, "")
+    val output = if (assemblingMachineLayouts.isNotEmpty()) assemblingMachineLayouts[0].output else IndexedBeltIo(-1, BeltIoType.OUTPUT, BeltSide.BOTH, "")
 
     fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
 
         var y = 0
-        for (subPrint in productionStepLayoutComponents.map { it.generateBlueprint() }) {
+        for (subPrint in assemblingMachineLayouts.map { it.generateBlueprint() }) {
             blueprint.addBlueprint(subPrint, 0, y)
             y -= subPrint.height
         }

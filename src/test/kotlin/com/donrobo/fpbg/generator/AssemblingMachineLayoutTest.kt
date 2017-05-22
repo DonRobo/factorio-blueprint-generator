@@ -7,20 +7,20 @@ import com.donrobo.fpbg.data.Recipe
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 
-class ProductionStepLayoutComponentTest : StringSpec() {
+class AssemblingMachineLayoutTest : StringSpec() {
 
     init {
         "Input belt assignments" {
-            val prod0 = ProductionStepLayoutComponent(aRecipe(ingredientCount = 0), 1.0)
+            val prod0 = AssemblingMachineLayout(aRecipe(ingredientCount = 0), 1.0)
             prod0.inputs.size shouldBe 0
 
-            val prod1 = ProductionStepLayoutComponent(aRecipe(ingredientCount = 1), 1.0)
+            val prod1 = AssemblingMachineLayout(aRecipe(ingredientCount = 1), 1.0)
             prod1.inputs.size shouldBe 1
             prod1.inputs[0].beltIndex shouldBe 0
             prod1.inputs[0].beltSide shouldBe BeltSide.BOTH
             prod1.inputs[0].item shouldBe "item-1"
 
-            val prod2 = ProductionStepLayoutComponent(aRecipe(ingredientCount = 2), 1.0)
+            val prod2 = AssemblingMachineLayout(aRecipe(ingredientCount = 2), 1.0)
             prod2.inputs.size shouldBe 2
             prod2.inputs[0].beltIndex shouldBe 0
             prod2.inputs[0].beltSide shouldBe BeltSide.LEFT
@@ -30,7 +30,7 @@ class ProductionStepLayoutComponentTest : StringSpec() {
             prod2.inputs[1].beltSide shouldBe BeltSide.RIGHT
             prod2.inputs[1].item shouldBe "item-2"
 
-            val prod3 = ProductionStepLayoutComponent(aRecipe(ingredientCount = 3), 1.0)
+            val prod3 = AssemblingMachineLayout(aRecipe(ingredientCount = 3), 1.0)
             prod3.inputs.size shouldBe 3
             prod3.inputs[0].beltIndex shouldBe 0
             prod3.inputs[0].beltSide shouldBe BeltSide.LEFT
@@ -44,7 +44,7 @@ class ProductionStepLayoutComponentTest : StringSpec() {
             prod3.inputs[2].beltSide shouldBe BeltSide.BOTH
             prod3.inputs[2].item shouldBe "item-3"
 
-            val prod4 = ProductionStepLayoutComponent(aRecipe(ingredientCount = 4), 1.0)
+            val prod4 = AssemblingMachineLayout(aRecipe(ingredientCount = 4), 1.0)
             prod4.inputs.size shouldBe 4
             prod4.inputs[0].beltIndex shouldBe 0
             prod4.inputs[0].beltSide shouldBe BeltSide.LEFT
@@ -63,14 +63,14 @@ class ProductionStepLayoutComponentTest : StringSpec() {
             prod4.inputs[3].item shouldBe "item-4"
         }
         "Width calculations" {
-            ProductionStepLayoutComponent(aRecipe(ingredientCount = 1), 1.0).width shouldBe 7
-            ProductionStepLayoutComponent(aRecipe(ingredientCount = 2), 1.0).width shouldBe 7
-            ProductionStepLayoutComponent(aRecipe(ingredientCount = 3), 1.0).width shouldBe 8
-            ProductionStepLayoutComponent(aRecipe(ingredientCount = 4), 1.0).width shouldBe 8
+            AssemblingMachineLayout(aRecipe(ingredientCount = 1), 1.0).width shouldBe 7
+            AssemblingMachineLayout(aRecipe(ingredientCount = 2), 1.0).width shouldBe 7
+            AssemblingMachineLayout(aRecipe(ingredientCount = 3), 1.0).width shouldBe 8
+            AssemblingMachineLayout(aRecipe(ingredientCount = 4), 1.0).width shouldBe 8
         }
         "Height calculations" {
             for (i in 0..4) {
-                ProductionStepLayoutComponent(aRecipe(i), 1.0).height shouldBe 3
+                AssemblingMachineLayout(aRecipe(i), 1.0).height shouldBe 3
             }
         }
     }
