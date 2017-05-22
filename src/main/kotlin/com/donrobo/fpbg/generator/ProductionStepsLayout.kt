@@ -7,7 +7,7 @@ import com.donrobo.fpbg.planner.ProductionStep
 
 class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
 
-    val productionStepLayouts = productionSteps.map { ProductionStepLayout(it.recipe, it.resultPerSecond.count) }
+    val productionStepLayouts = productionSteps.map { AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count) }
 
     val width = productionStepLayouts.map { it.width }.sum()
 
