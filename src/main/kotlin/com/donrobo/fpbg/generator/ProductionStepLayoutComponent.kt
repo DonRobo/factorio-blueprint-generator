@@ -43,9 +43,9 @@ class ProductionStepLayoutComponent(val recipe: Recipe, val maxResultsPerSecond:
     val assemblingMachineType: AssemblingMachine get() {
         val targetedCraftingSpeed = maxResultsPerSecond / recipe.result.count
 
-        return if (targetedCraftingSpeed >= AssemblingMachine.ASSEMBLING_MACHINE_3.craftingSpeed)
+        return if (targetedCraftingSpeed >= AssemblingMachine.ASSEMBLING_MACHINE_3.craftingSpeed || recipe.ingredients.size > 4)
             AssemblingMachine.ASSEMBLING_MACHINE_3
-        else if (targetedCraftingSpeed >= AssemblingMachine.ASSEMBLING_MACHINE_2.craftingSpeed)
+        else if (targetedCraftingSpeed >= AssemblingMachine.ASSEMBLING_MACHINE_2.craftingSpeed || recipe.ingredients.size > 2)
             AssemblingMachine.ASSEMBLING_MACHINE_2
         else
             AssemblingMachine.ASSEMBLING_MACHINE_1
