@@ -19,11 +19,14 @@ public interface Building {
 
     String getName();
 
-    static <T extends Building> T move(T building, int offset, int direction) {
-        Int2 offsetInt2 = Direction.move(new Int2(0, 0), offset, direction);
+    static <T extends Building> T move(T building, int offset, Direction direction) {
+        Int2 offsetInt2 = direction.move(new Int2(0, 0), offset);
 
-        return (T) building.move(offsetInt2.getX(), offsetInt2.getY());
+        Building movedBuilding = building.move(offsetInt2.getX(), offsetInt2.getY());
+        return (T) movedBuilding; //TODO move to kotlin
     }
 
     Int2 getPosition();
+
+    char getVisualizationCharacter();
 }

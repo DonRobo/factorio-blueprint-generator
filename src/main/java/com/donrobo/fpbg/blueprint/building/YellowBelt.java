@@ -7,9 +7,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class YellowBelt extends AbstractBuilding {
 
-    private final int direction;
+    private final Direction direction;
 
-    public YellowBelt(int x, int y, int direction) {
+    public YellowBelt(int x, int y, Direction direction) {
         super(x, y);
         this.direction = direction;
     }
@@ -35,8 +35,25 @@ public class YellowBelt extends AbstractBuilding {
     }
 
     @Override
+    public char getVisualizationCharacter() {
+        switch (direction) {
+            case UP:
+                return '^';
+            case DOWN:
+                return 'v';
+            case LEFT:
+                return '<';
+            case RIGHT:
+                return '>';
+            default:
+                throw new RuntimeException("New direciton added?");
+        }
+
+    }
+
+    @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", Direction.reverseDirection(direction));
+        json.put("direction", direction.reverseDirection().getDirectionValue());
     }
 
     @Override
@@ -75,7 +92,7 @@ public class YellowBelt extends AbstractBuilding {
                 .toHashCode();
     }
 
-    public int getDirection() {
+    public Direction getDirection() {
         return direction;
     }
 }

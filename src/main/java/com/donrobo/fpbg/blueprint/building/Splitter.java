@@ -7,9 +7,9 @@ import static com.donrobo.fpbg.blueprint.Direction.*;
 
 public class Splitter extends AbstractBuilding {
 
-    private final int direction;
+    private final Direction direction;
 
-    public Splitter(int x, int y, int direction) {
+    public Splitter(int x, int y, Direction direction) {
         super(x, y);
         this.direction = direction;
     }
@@ -35,6 +35,11 @@ public class Splitter extends AbstractBuilding {
     }
 
     @Override
+    public char getVisualizationCharacter() {
+        return 'S';
+    }
+
+    @Override
     protected double getBlueprintXOffset() {
         return direction == UP || direction == DOWN ? 0.5 : 0;
     }
@@ -46,6 +51,6 @@ public class Splitter extends AbstractBuilding {
 
     @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", Direction.reverseDirection(direction));
+        json.put("direction", direction.reverseDirection().getDirectionValue());
     }
 }

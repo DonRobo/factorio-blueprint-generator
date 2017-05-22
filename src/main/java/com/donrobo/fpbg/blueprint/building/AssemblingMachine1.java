@@ -31,6 +31,11 @@ public class AssemblingMachine1 extends AbstractBuilding {
         return "assembling-machine-1";
     }
 
+    @Override
+    public char getVisualizationCharacter() {
+        return '1';
+    }
+
     public String getRecipe() {
         return recipe;
     }

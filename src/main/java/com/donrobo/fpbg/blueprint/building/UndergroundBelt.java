@@ -5,10 +5,10 @@ import net.sf.json.JSONObject;
 
 public class UndergroundBelt extends AbstractBuilding {
 
-    private final int direction;
+    private final Direction direction;
     private final boolean input;
 
-    public UndergroundBelt(int x, int y, int direction, boolean input) {
+    public UndergroundBelt(int x, int y, Direction direction, boolean input) {
         super(x, y);
         this.direction = direction;
         this.input = input;
@@ -35,6 +35,11 @@ public class UndergroundBelt extends AbstractBuilding {
     }
 
     @Override
+    public char getVisualizationCharacter() {
+        return isInput() ? 'u' : 'U';
+    }
+
+    @Override
     protected double getBlueprintXOffset() {
         return 0;
     }
@@ -46,11 +51,11 @@ public class UndergroundBelt extends AbstractBuilding {
 
     @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", Direction.reverseDirection(direction));
+        json.put("direction", direction.reverseDirection().getDirectionValue());
         json.put("type", input ? "input" : "output");
     }
 
-    public int getDirection() {
+    public Direction getDirection() {
         return direction;
     }
 

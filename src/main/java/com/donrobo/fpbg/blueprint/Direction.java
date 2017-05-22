@@ -2,15 +2,25 @@ package com.donrobo.fpbg.blueprint;
 
 import com.donrobo.fpbg.data.Int2;
 
-public class Direction {
+public enum Direction {
 
-    public static final int UP = 4;
-    public static final int DOWN = 0;
-    public static final int LEFT = 2;
-    public static final int RIGHT = 6;
+    UP(4),
+    DOWN(0),
+    LEFT(2),
+    RIGHT(6);
 
-    public static int reverseDirection(int direction) {
-        switch (direction) {
+    private final int directionValue;
+
+    Direction(int directionValue) {
+        this.directionValue = directionValue;
+    }
+
+    public int getDirectionValue() {
+        return directionValue;
+    }
+
+    public Direction reverseDirection() {
+        switch (this) {
             case UP:
                 return DOWN;
             case DOWN:
@@ -19,15 +29,16 @@ public class Direction {
                 return RIGHT;
             case RIGHT:
                 return LEFT;
+            default:
+                throw new RuntimeException("New direction added?");
         }
-        throw new RuntimeException("Unknown direction: " + direction);
     }
 
-    public static Int2 move(Int2 start, int distance, int direction) {
+    public Int2 move(Int2 start, int distance) {
         int actualX = start.getX();
         int actualY = start.getY();
 
-        switch (direction) {
+        switch (this) {
             case UP:
                 actualY -= distance;
                 break;

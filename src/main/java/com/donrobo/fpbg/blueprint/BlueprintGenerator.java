@@ -131,12 +131,11 @@ public class BlueprintGenerator {
                 blueprint.addBuilding(new YellowBelt(oldUndergroundBelt.getX(), oldUndergroundBelt.getY(), oldUndergroundBelt.getDirection()));
             } else {
                 int offset = 0;
-                int searchDirection = oldUndergroundBelt.isInput() ? oldUndergroundBelt.getDirection() : Direction.reverseDirection(oldUndergroundBelt.getDirection());
+                Direction searchDirection = oldUndergroundBelt.isInput() ? oldUndergroundBelt.getDirection() : oldUndergroundBelt.getDirection().reverseDirection();
 
-                while (!blueprint.isOccupied(Direction.move(
+                while (!blueprint.isOccupied(searchDirection.move(
                         new Int2(oldUndergroundBelt.getX(), oldUndergroundBelt.getY()),
-                        offset,
-                        searchDirection
+                        offset
                 ))) {
                     offset++;
                 }
@@ -146,7 +145,7 @@ public class BlueprintGenerator {
                 if (oldUndergroundBelt.isInput()) {
                     placeBeltFromTo(blueprint, oldUndergroundBelt.getX(), oldUndergroundBelt.getY(), offset, oldUndergroundBelt.getDirection());
                 } else {
-                    Int2 startPosition = Direction.move(newUnderground.getPosition(), 1, newUnderground.getDirection());
+                    Int2 startPosition = newUnderground.getDirection().move(newUnderground.getPosition(), 1);
                     placeBeltFromTo(blueprint, startPosition.getX(), startPosition.getY(), offset, newUnderground.getDirection());
                 }
             }
@@ -178,8 +177,8 @@ public class BlueprintGenerator {
         int offset = 0;
 
         Int2 newPos;
-        int searchDirection = undergroundBelt.isInput() ? undergroundBelt.getDirection() : Direction.reverseDirection(undergroundBelt.getDirection());
-        while ((newPos = Direction.move(undergroundBelt.getPosition(), offset, searchDirection))
+        Direction searchDirection = undergroundBelt.isInput() ? undergroundBelt.getDirection() : undergroundBelt.getDirection().reverseDirection();
+        while ((newPos = searchDirection.move(undergroundBelt.getPosition(), offset))
                 .getX() >= blueprint.getMinimumX()
                 && newPos.getX() <= blueprint.getMaximumX()
                 && newPos.getY() >= blueprint.getMinimumY()
@@ -195,12 +194,12 @@ public class BlueprintGenerator {
         return null;
     }
 
-    private static void placeBeltFromTo(Blueprint bp, int startX, int startY, int length, int direction) {
+    private static void placeBeltFromTo(Blueprint bp, int startX, int startY, int length, Direction direction) {
         Integer previousX = null;
         Integer previousY = null;
         boolean isUnderground = false;
         for (int offset = 0; offset < length; offset++) {
-            Int2 actual = Direction.move(new Int2(startX, startY), offset, direction);
+            Int2 actual = direction.move(new Int2(startX, startY), offset);
             int actualX = actual.getX();
             int actualY = actual.getY();
 
@@ -234,7 +233,7 @@ public class BlueprintGenerator {
     }
 
     private static boolean goingSameDirection(Building beltToPlace, Building beltOccup) {
-        int occupDirection;
+        Direction occupDirection;
 
         if (beltOccup instanceof YellowBelt) {
             occupDirection = ((YellowBelt) beltOccup).getDirection();
@@ -247,7 +246,7 @@ public class BlueprintGenerator {
             return false;
         }
 
-        int placeDirection;
+        Direction placeDirection;
         if (beltToPlace instanceof YellowBelt) {
             placeDirection = ((YellowBelt) beltToPlace).getDirection();
         } else if (beltToPlace instanceof UndergroundBelt) {

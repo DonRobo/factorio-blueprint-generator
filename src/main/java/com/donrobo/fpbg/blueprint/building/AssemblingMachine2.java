@@ -17,6 +17,11 @@ public class AssemblingMachine2 extends AbstractBuilding {
     }
 
     @Override
+    public char getVisualizationCharacter() {
+        return '2';
+    }
+
+    @Override
     public int getWidth() {
         return 3;
     }

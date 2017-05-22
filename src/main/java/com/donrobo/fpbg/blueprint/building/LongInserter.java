@@ -1,11 +1,12 @@
 package com.donrobo.fpbg.blueprint.building;
 
+import com.donrobo.fpbg.blueprint.Direction;
 import net.sf.json.JSONObject;
 
 public class LongInserter extends AbstractBuilding {
-    private final int direction;
+    private final Direction direction;
 
-    public LongInserter(int x, int y, int direction) {
+    public LongInserter(int x, int y, Direction direction) {
         super(x, y);
         this.direction = direction;
     }
@@ -31,6 +32,11 @@ public class LongInserter extends AbstractBuilding {
     }
 
     @Override
+    public char getVisualizationCharacter() {
+        return 'l';
+    }
+
+    @Override
     protected double getBlueprintXOffset() {
         return 0;
     }
@@ -42,6 +48,6 @@ public class LongInserter extends AbstractBuilding {
 
     @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", direction);
+        json.put("direction", direction.getDirectionValue());
     }
 }

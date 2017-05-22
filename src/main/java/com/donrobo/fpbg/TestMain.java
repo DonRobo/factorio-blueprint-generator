@@ -4,6 +4,7 @@ import com.donrobo.fpbg.blueprint.Blueprint;
 import com.donrobo.fpbg.blueprint.BlueprintGenerator;
 import com.donrobo.fpbg.data.Item;
 import com.donrobo.fpbg.data.Recipe;
+import com.donrobo.fpbg.generator.ProductionLineGeneratorKt;
 import com.donrobo.fpbg.planner.FractionalItemStack;
 import com.donrobo.fpbg.planner.ProductionLine;
 import com.donrobo.fpbg.planner.ProductionLinePlanner;
@@ -19,8 +20,8 @@ import java.util.stream.Collectors;
 public class TestMain {
 
     public static void main(String[] args) throws IOException {
-//        File file = new File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\");
-        File file = new File("D:\\Games\\Steam\\steamapps\\common\\Factorio\\");
+        File file = new File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\");
+//        File file = new File("D:\\Games\\Steam\\steamapps\\common\\Factorio\\");
         List<Recipe> recipes = RecipeLoader.loadRecipes(file);
 
         System.out.println(String.join(",", recipes.stream().map(Recipe::getName).collect(Collectors.toList())));
@@ -37,11 +38,20 @@ public class TestMain {
         );
         System.out.println(productionLine);
 
-        Blueprint blueprint = BlueprintGenerator.generateBlueprint(productionLine);
+        boolean kotlin = false;
+        Blueprint blueprint;
+        //noinspection ConstantConditions
+        if (kotlin) {
+            blueprint = ProductionLineGeneratorKt.generateBlueprint(productionLine);
+        } else {
+            blueprint = BlueprintGenerator.generateBlueprint(productionLine);
+        }
+
         FileUtils.writeStringToFile(new File("src/main/resources/outputblueprint.json"), blueprint.toJson().toString(), "UTF-8");
         System.out.println(blueprint.toBlueprintString());
         StringSelection stringSelection = new StringSelection(blueprint.toBlueprintString());
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, stringSelection);
         System.out.println("Copied to clipboard");
+        System.out.println(blueprint.visualize());
     }
 }

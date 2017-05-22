@@ -1,5 +1,6 @@
 package com.donrobo.fpbg.generator
 
+import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.data.BeltIoType
 import com.donrobo.fpbg.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionStep
@@ -43,5 +44,23 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
                         item = it.output.item)
             }
         }
+
+    fun generateBlueprint(): Blueprint {
+        val blueprint = Blueprint()
+
+        var x = 0
+
+        for (subPrint in productionStepLayouts.map { it.generateBlueprint() }) {
+            blueprint.addBlueprint(subPrint, x, 0)
+            x += subPrint.width
+        }
+
+        if (!(blueprint.width == width && blueprint.height == height)) {
+            throw RuntimeException("Blueprint generation failed!\n" +
+                    "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
+                    blueprint.visualize())
+        }
+        return blueprint
+    }
 
 }

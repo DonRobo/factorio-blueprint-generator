@@ -132,11 +132,11 @@ public class Blueprint {
     }
 
     public int getWidth() {
-        return getMaximumX() - getMinimumX();
+        return getMaximumX() - getMinimumX() + 1; //1-1 is still one width
     }
 
     public int getHeight() {
-        return getMaximumY() - getMinimumY();
+        return getMaximumY() - getMinimumY() + 1; //1-1 is still one height
     }
 
     public boolean canPlace(Blueprint blueprint, int x, int y) {
@@ -154,5 +154,25 @@ public class Blueprint {
 
     public Building get(Int2 pos) {
         return get(pos.getX(), pos.getY());
+    }
+
+    public String visualize() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int y = getMinimumY(); y <= getMaximumY(); y++) {
+            for (int x = getMinimumX(); x <= getMaximumX(); x++) {
+                Building building = get(x, y);
+                if (building != null) {
+                    stringBuilder.append(building.getVisualizationCharacter());
+                } else {
+                    stringBuilder.append(' ');
+                }
+            }
+            stringBuilder.append("\n");
+        }
+
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1); //remove last \n
+
+        return stringBuilder.toString();
     }
 }

@@ -1,21 +1,20 @@
 package com.donrobo.fpbg.generator
 
+import com.donrobo.fpbg.blueprint.Blueprint
+import com.donrobo.fpbg.blueprint.Direction.*
+import com.donrobo.fpbg.blueprint.building.*
 import com.donrobo.fpbg.data.*
 
 
 class ProductionStepLayoutComponent(val recipe: Recipe, val maxResultsPerSecond: Double) {
     val width: Int
         get() {
-            val belts = when (recipe.ingredients.size) {
-                0 -> TODO("No inputs? Does this exist?")
-                1, 2 -> 1
-                3, 4 -> 2
-                else -> TODO("More than 4 inputs not supported yet")
-            } + 1 //for output
+            val inputBelts = if (doubleInputBelts) 2 else 1
+            val outputBelts = 1
             val assemblingMachineWidth = 3
             val inserterCount = 2
 
-            return assemblingMachineWidth + inserterCount + belts
+            return assemblingMachineWidth + inserterCount + inputBelts + outputBelts
         }
 
     val height = 3
@@ -53,4 +52,37 @@ class ProductionStepLayoutComponent(val recipe: Recipe, val maxResultsPerSecond:
         }
 
     val resultsPerSecond = craftingSpeed * recipe.result.count
+
+    val doubleInputBelts = inputs.size > 2
+
+    fun generateBlueprint(): Blueprint {
+        val blueprint = Blueprint()
+
+        val beltOffset = if (doubleInputBelts) 2 else 1
+        for (y in 0.downTo(-(height - 1))) {
+            blueprint.addBuilding(YellowBelt(0, y, UP))
+            if (doubleInputBelts) {
+                blueprint.addBuilding(YellowBelt(1, y, UP))
+            }
+            blueprint.addBuilding(YellowBelt(width - 1, y, DOWN))
+        }
+
+        blueprint.addBuilding(FastInserter(beltOffset, 0, RIGHT))
+        blueprint.addBuilding(FastInserter(beltOffset + 4, 0, RIGHT))
+        if (doubleInputBelts)
+            blueprint.addBuilding(LongInserter(beltOffset, -1, RIGHT))
+
+        blueprint.addBuilding(when (assemblingMachineType) {
+            AssemblingMachine.ASSEMBLING_MACHINE_1 -> AssemblingMachine1(recipe.name, beltOffset + 1, -2)
+            AssemblingMachine.ASSEMBLING_MACHINE_2 -> AssemblingMachine2(recipe.name, beltOffset + 1, -2)
+            AssemblingMachine.ASSEMBLING_MACHINE_3 -> AssemblingMachine2(recipe.name, beltOffset + 1, -2) //TODO am3
+        })
+
+        if (!(blueprint.width == width && blueprint.height == height)) {
+            throw RuntimeException("Blueprint generation failed!\n" +
+                    "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
+                    blueprint.visualize())
+        }
+        return blueprint
+    }
 }
