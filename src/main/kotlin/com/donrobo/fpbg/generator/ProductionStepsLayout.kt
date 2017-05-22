@@ -7,17 +7,17 @@ import com.donrobo.fpbg.planner.ProductionStep
 
 class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
 
-    val productionStepLayouts = productionSteps.map { AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count) }
+    val assemblingMachineLineLayouts = productionSteps.map { AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count) }
 
-    val width = productionStepLayouts.map { it.width }.sum()
+    val width = assemblingMachineLineLayouts.map { it.width }.sum()
 
-    val height = productionStepLayouts.map { it.height }.max() ?: 0
+    val height = assemblingMachineLineLayouts.map { it.height }.max() ?: 0
 
     val inputs: List<PositionalBeltIo>
         get() {
             var interStepOffset = 0
 
-            return productionStepLayouts.flatMap { psl ->
+            return assemblingMachineLineLayouts.flatMap { psl ->
                 val oldInterStepOffset = interStepOffset
                 interStepOffset += psl.width
                 psl.inputs.map {
@@ -34,7 +34,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
         get() {
             var interStepOffset = 0
 
-            return productionStepLayouts.map {
+            return assemblingMachineLineLayouts.map {
                 interStepOffset += it.width
 
                 PositionalBeltIo(
@@ -50,7 +50,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
 
         var x = 0
 
-        for (subPrint in productionStepLayouts.map { it.generateBlueprint() }) {
+        for (subPrint in assemblingMachineLineLayouts.map { it.generateBlueprint() }) {
             blueprint.addBlueprint(subPrint, x, 0)
             x += subPrint.width
         }

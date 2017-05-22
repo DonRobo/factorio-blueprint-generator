@@ -38,7 +38,7 @@ public class TestMain {
         );
         System.out.println(productionLine);
 
-        boolean kotlin = false;
+        boolean kotlin = true;
         Blueprint blueprint;
         //noinspection ConstantConditions
         if (kotlin) {
@@ -51,7 +51,7 @@ public class TestMain {
         System.out.println(blueprint.toBlueprintString());
         StringSelection stringSelection = new StringSelection(blueprint.toBlueprintString());
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, stringSelection);
-        System.out.println("Copied to clipboard");
         System.out.println(blueprint.visualize());
+        System.out.println("Copied to clipboard");
     }
 }
