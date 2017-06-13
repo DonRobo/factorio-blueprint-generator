@@ -43,7 +43,7 @@ class AssemblingMachineLineLayout(val recipe: Recipe, val resultsPerSecond: Doub
         if (!(blueprint.width == width && blueprint.height == height)) {
             throw RuntimeException("Blueprint generation failed!\n" +
                     "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
-                    blueprint.visualize())
+                    blueprint.visualizer().visualize())
         }
         return blueprint
     }

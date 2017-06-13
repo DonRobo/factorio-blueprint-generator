@@ -51,7 +51,7 @@ public class TestMain {
         System.out.println(blueprint.toBlueprintString());
         StringSelection stringSelection = new StringSelection(blueprint.toBlueprintString());
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, stringSelection);
-        System.out.println(blueprint.visualize());
+        System.out.println(blueprint.visualizer().visualize());
         System.out.println("Copied to clipboard");
     }
 }

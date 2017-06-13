@@ -51,7 +51,7 @@ public class UndergroundBelt extends AbstractBuilding {
 
     @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", direction.reverseDirection().getDirectionValue());
+        json.put("direction", direction.getReversed().getDirectionValue());
         json.put("type", input ? "input" : "output");
     }
 

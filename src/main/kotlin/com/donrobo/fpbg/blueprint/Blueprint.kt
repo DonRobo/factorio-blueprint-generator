@@ -2,6 +2,7 @@ package com.donrobo.fpbg.blueprint
 
 import com.donrobo.fpbg.blueprint.building.Building
 import com.donrobo.fpbg.data.Int2
+import com.donrobo.fpbg.util.MapVisualizer
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 import org.apache.commons.io.IOUtils
@@ -108,19 +109,18 @@ class Blueprint {
         return get(pos.x, pos.y)
     }
 
-    fun visualize(): String {
-        val stringBuilder = StringBuilder()
+    fun visualizer(): MapVisualizer {
+        val mapVisualizer = MapVisualizer()
 
-        for (y in minimumY..maximumY) {
-            (minimumX..maximumX).map { get(it, y) }.forEach {
-                stringBuilder.append(it?.visualizationCharacter ?: ' ')
+        for (building in buildings) {
+            for (y in building.y..(building.y + building.height - 1)) {
+                for (x in building.x..(building.x + building.width - 1)) {
+                    mapVisualizer[Int2(x, y)] = building.visualizationCharacter
+                }
             }
-            stringBuilder.append("\n")
         }
 
-        stringBuilder.deleteCharAt(stringBuilder.length - 1) //remove last \n
-
-        return stringBuilder.toString()
+        return mapVisualizer
     }
 
     companion object {

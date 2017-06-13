@@ -51,6 +51,6 @@ public class Splitter extends AbstractBuilding {
 
     @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
-        json.put("direction", direction.reverseDirection().getDirectionValue());
+        json.put("direction", direction.getReversed().getDirectionValue());
     }
 }

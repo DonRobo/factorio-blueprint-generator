@@ -58,7 +58,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
         if (!(blueprint.width == width && blueprint.height == height)) {
             throw RuntimeException("Blueprint generation failed!\n" +
                     "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
-                    blueprint.visualize())
+                    blueprint.visualizer().visualize())
         }
         return blueprint
     }
