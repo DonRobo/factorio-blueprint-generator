@@ -30,4 +30,21 @@ enum class Direction(val directionValue: Int) {
 
         return Int2(actualX, actualY)
     }
+
+    companion object {
+        fun calculateDirection(from: Int2, to: Int2): Direction {
+            assert((from.x == to.x) != (from.y == to.y))
+            if (from.x < to.x) {
+                return Direction.RIGHT
+            } else if (from.x > to.x) {
+                return Direction.LEFT
+            } else if (from.y < to.y) {
+                return Direction.DOWN
+            } else if (from.y > to.y) {
+                return Direction.UP
+            } else {
+                throw RuntimeException("Shouldn't happen")
+            }
+        }
+    }
 }

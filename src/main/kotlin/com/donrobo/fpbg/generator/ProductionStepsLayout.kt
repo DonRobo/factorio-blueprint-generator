@@ -23,7 +23,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
                 interStepOffset += psl.width
                 psl.inputs.map {
                     PositionalBeltIo(
-                            position = Int2(oldInterStepOffset + it.beltIndex, 0),
+                            position = Int2(oldInterStepOffset + it.beltIndex, 1),
                             type = BeltIoType.INPUT,
                             beltSide = it.beltSide,
                             item = it.item)
@@ -39,7 +39,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
                 interStepOffset += it.width
 
                 PositionalBeltIo(
-                        position = Int2(interStepOffset - 1, 0),
+                        position = Int2(interStepOffset - 1, 1),
                         type = BeltIoType.OUTPUT,
                         beltSide = it.output.beltSide,
                         item = it.output.item)

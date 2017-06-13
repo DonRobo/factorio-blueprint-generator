@@ -25,7 +25,7 @@ fun generateBlueprint(productionLine: ProductionLine): Blueprint {
         }
     }
 
-    BeltLayer.layBelts(blueprint, pathsToGenerate, { it.pos.x >= 0 })
+    BeltLayer.layBelts(blueprint, pathsToGenerate, { it.pos.x > ProductionLine.materialInputsOffset })
 
     return blueprint
 }

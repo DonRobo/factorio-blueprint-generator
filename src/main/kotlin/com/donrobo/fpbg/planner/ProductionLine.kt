@@ -44,10 +44,15 @@ class ProductionLine {
 
     val materialInputs: List<PositionalBeltIo> get() {
         return inputMaterials.mapIndexed { index, item ->
-            PositionalBeltIo(position = Int2(-1, index * 2), type = BeltIoType.OUTPUT, item = item, beltSide = BeltSide.BOTH, direction = Direction.RIGHT)
+            PositionalBeltIo(position = Int2(materialInputsOffset, index * 2 + 2), type = BeltIoType.OUTPUT, item = item, beltSide = BeltSide.BOTH, direction = Direction.RIGHT)
         }
     }
 
     fun getProductionStepsThatRequire(input: String): List<ProductionStep> = productionSteps.filter { it.requires(input) }
+
+
+    companion object {
+        val materialInputsOffset: Int = -2
+    }
 
 }
