@@ -5,7 +5,7 @@ import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.util.MapVisualizer
 
-private data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?) {
+data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?) {
     val f: Int get() = g + h
     val g: Int get() = 10 + (parent?.g ?: 0)
     val h: Int get() = Math.abs(target.x - pos.x) * 10 + Math.abs(target.y - pos.y) * 10
@@ -20,20 +20,27 @@ private data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarN
 
 data class DirectionalInt2(val pos: Int2, val direction: Direction)
 
+typealias BeltLayerLimitation = (AStarNode) -> Boolean
+
 object BeltLayer {
 
-    fun layBelts(blueprint: Blueprint, paths: List<Pair<DirectionalInt2, DirectionalInt2>>) {
+    fun layBelts(blueprint: Blueprint, paths: List<Pair<DirectionalInt2, DirectionalInt2>>, vararg limitations: BeltLayerLimitation) {
         paths.forEach { (first, second) ->
             val start = first.pos
             val realStart = first.direction.reversed.move(start)
-            blueprint.addBuilding(YellowBelt(realStart.x, realStart.y, first.direction))
 
-            blueprint.addBuilding(YellowBelt(second.pos.x, second.pos.y, second.direction))
+            val startBuilding = YellowBelt(realStart.x, realStart.y, first.direction)
+            if (!blueprint.isOccupied(startBuilding))
+                blueprint.addBuilding(startBuilding)
+
+            val destBuilding = YellowBelt(second.pos.x, second.pos.y, second.direction)
+            if (!blueprint.isOccupied(destBuilding))
+                blueprint.addBuilding(destBuilding)
         }
 
         paths.forEach { path ->
             try {
-                layBelt(blueprint, path)
+                layBelt(blueprint, path, *limitations)
             } catch(t: Throwable) {
                 println(blueprint.visualizer().visualize())
                 throw t
@@ -41,8 +48,8 @@ object BeltLayer {
         }
     }
 
-    private fun layBelt(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>) {
-        var currentNode = generatePath(blueprint, path)
+    private fun layBelt(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation) {
+        var currentNode = generatePath(blueprint, path, *limitations)
 
         while (currentNode.parent != null) {
             val parent = currentNode.parent ?: throw RuntimeException("Literally not possible")
@@ -67,7 +74,7 @@ object BeltLayer {
         return
     }
 
-    private fun generatePath(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>): AStarNode {
+    private fun generatePath(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
         val open = mutableListOf(AStarNode(pos = path.first.pos, parent = null, target = path.second.pos))
         val closed = mutableListOf<AStarNode>()
 
@@ -85,7 +92,7 @@ object BeltLayer {
                 val node = AStarNode(pos = adj, parent = current, target = path.second.pos)
                 if (adj == path.second.pos)
                     return node
-                addIfValid(node, open, closed, blueprint)
+                addIfValid(node, open, closed, blueprint, *limitations)
             }
             open.remove(current)
             closed.add(current)
@@ -94,7 +101,9 @@ object BeltLayer {
         throw RuntimeException("No path found")
     }
 
-    private fun addIfValid(node: AStarNode, open: MutableList<AStarNode>, closed: MutableList<AStarNode>, blueprint: Blueprint) {
+    private fun addIfValid(node: AStarNode, open: MutableList<AStarNode>, closed: MutableList<AStarNode>, blueprint: Blueprint, vararg limitations: BeltLayerLimitation) {
+        if (limitations.any { limitation -> !limitation(node) }) return
+
         val existing = open.filter { it.pos == node.pos }.minBy { it.f }
         if (existing != null) {
             if (existing.f < node.f)
@@ -120,9 +129,9 @@ object BeltLayer {
         open.add(node)
     }
 
-    fun layBelts(path: List<Pair<DirectionalInt2, DirectionalInt2>>): Blueprint {
+    fun layBelts(vararg paths: Pair<DirectionalInt2, DirectionalInt2>): Blueprint {
         val blueprint = Blueprint()
-        layBelts(blueprint, path)
+        layBelts(blueprint, listOf(*paths))
         return blueprint
     }
 

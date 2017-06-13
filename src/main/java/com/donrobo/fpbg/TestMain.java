@@ -28,13 +28,17 @@ public class TestMain {
 
         ProductionLinePlanner productionLinePlanner = new ProductionLinePlanner(recipes);
 
+//        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
+//                new FractionalItemStack(1, new Item("transport-belt")),
+//                new FractionalItemStack(1, new Item("splitter")),
+//                new FractionalItemStack(1, new Item("underground-belt")),
+//                new FractionalItemStack(1, new Item("fast-transport-belt")),
+//                new FractionalItemStack(1, new Item("fast-splitter")),
+//                new FractionalItemStack(1, new Item("fast-underground-belt"))
+//        );
         ProductionLine productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
-                new FractionalItemStack(1, new Item("transport-belt")),
-                new FractionalItemStack(1, new Item("splitter")),
-                new FractionalItemStack(1, new Item("underground-belt")),
-                new FractionalItemStack(1, new Item("fast-transport-belt")),
-                new FractionalItemStack(1, new Item("fast-splitter")),
-                new FractionalItemStack(1, new Item("fast-underground-belt"))
+                new FractionalItemStack(1, new Item("iron-gear-wheel")),
+                new FractionalItemStack(1, new Item("copper-cable"))
         );
         System.out.println(productionLine);
 

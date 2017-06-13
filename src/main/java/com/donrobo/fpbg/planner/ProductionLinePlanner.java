@@ -3,6 +3,7 @@ package com.donrobo.fpbg.planner;
 import com.donrobo.fpbg.data.Item;
 import com.donrobo.fpbg.data.ItemStack;
 import com.donrobo.fpbg.data.Recipe;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class ProductionLinePlanner {
                 double requiredCount = required.get(itemToProduce);
                 Recipe usefulRecipe = findRecipeThatProduces(itemToProduce);
                 if (usefulRecipe == null) {
-                    throw new RuntimeException("Couldn't find recipe for " + itemToProduce);
+                    throw new RuntimeException("Couldn't find recipe for " + itemToProduce + ". Did you mean " + findClosestRecipe(itemToProduce) + "?");
                 }
                 for (ItemStack ingredient : usefulRecipe.getIngredients()) {
                     Double requiredIngredientCount = required.get(ingredient.getItem().getName());
@@ -64,6 +65,18 @@ public class ProductionLinePlanner {
                 throw new RuntimeException("Should never get here!");
             }
         }
+    }
+
+    private String findClosestRecipe(String itemToProduce) {
+        List<String> producedItems = recipes.stream().map(recipe -> recipe.getResult().getItem().getName()).collect(Collectors.toList());
+        producedItems.sort((item1, item2) -> {
+            int dist1 = StringUtils.getLevenshteinDistance(itemToProduce, item1);
+            int dist2 = StringUtils.getLevenshteinDistance(itemToProduce, item2);
+
+            return dist1 - dist2;
+        });
+
+        return producedItems.get(0);
     }
 
     private boolean containsMoreThan(Map<String, Double> required, List<Item> allowedInput) {

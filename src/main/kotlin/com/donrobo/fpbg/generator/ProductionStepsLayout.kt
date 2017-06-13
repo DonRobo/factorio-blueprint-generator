@@ -2,6 +2,7 @@ package com.donrobo.fpbg.generator
 
 import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.data.BeltIoType
+import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionStep
 
@@ -22,7 +23,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
                 interStepOffset += psl.width
                 psl.inputs.map {
                     PositionalBeltIo(
-                            position = Pair(oldInterStepOffset + it.beltIndex, 0),
+                            position = Int2(oldInterStepOffset + it.beltIndex, 0),
                             type = BeltIoType.INPUT,
                             beltSide = it.beltSide,
                             item = it.item)
@@ -38,7 +39,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
                 interStepOffset += it.width
 
                 PositionalBeltIo(
-                        position = Pair(interStepOffset - 1, 0),
+                        position = Int2(interStepOffset - 1, 0),
                         type = BeltIoType.OUTPUT,
                         beltSide = it.output.beltSide,
                         item = it.output.item)
@@ -60,6 +61,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
                     "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
                     blueprint.visualizer().visualize())
         }
+
         return blueprint
     }
 

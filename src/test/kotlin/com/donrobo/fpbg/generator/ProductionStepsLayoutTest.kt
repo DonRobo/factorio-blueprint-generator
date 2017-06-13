@@ -2,6 +2,7 @@ package com.donrobo.fpbg.generator
 
 import com.donrobo.fpbg.data.BeltIoType
 import com.donrobo.fpbg.data.BeltSide
+import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionStep
 import com.donrobo.fpbg.test.ProductionStepGenerator
@@ -35,27 +36,27 @@ class ProductionStepsLayoutTest : StringSpec() {
             val inputs = ProductionStepsLayout(listOf(ps3, ps2)).inputs
             inputs.size shouldBe 5
             inputs[0] shouldBe PositionalBeltIo(
-                    position = Pair(0, 0),
+                    position = Int2(0, 0),
                     beltSide = BeltSide.LEFT,
                     type = BeltIoType.INPUT,
                     item = "item-1_1")
             inputs[1] shouldBe PositionalBeltIo(
-                    position = Pair(0, 0),
+                    position = Int2(0, 0),
                     beltSide = BeltSide.RIGHT,
                     type = BeltIoType.INPUT,
                     item = "item-1_2")
             inputs[2] shouldBe PositionalBeltIo(
-                    position = Pair(1, 0),
+                    position = Int2(1, 0),
                     beltSide = BeltSide.BOTH,
                     type = BeltIoType.INPUT,
                     item = "item-1_3")
             inputs[3] shouldBe PositionalBeltIo(
-                    position = Pair(8, 0),
+                    position = Int2(8, 0),
                     beltSide = BeltSide.LEFT,
                     type = BeltIoType.INPUT,
                     item = "item-2_1")
             inputs[4] shouldBe PositionalBeltIo(
-                    position = Pair(8, 0),
+                    position = Int2(8, 0),
                     beltSide = BeltSide.RIGHT,
                     type = BeltIoType.INPUT,
                     item = "item-2_2")
