@@ -39,6 +39,7 @@ public class TestMain {
         ProductionLine productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
                 new FractionalItemStack(1, new Item("iron-gear-wheel")),
                 new FractionalItemStack(1, new Item("copper-cable"))
+//                new FractionalItemStack(1, new Item("transport-belt"))
         );
         System.out.println(productionLine);
 

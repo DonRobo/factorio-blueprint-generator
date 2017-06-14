@@ -16,6 +16,14 @@ private class BeltLayerBlueprint(val blueprint: Blueprint) {
         blueprint.addBuilding(building)
         itemInformation.put(Int2(building.x, building.y), items)
     }
+
+    fun isOccupied(pos: Int2): Boolean {
+        return blueprint.isOccupied(pos)
+    }
+
+    operator fun get(pos: Int2): Building? {
+        return blueprint[pos]
+    }
 }
 
 enum class NodeType {
@@ -73,27 +81,27 @@ object BeltLayer {
 
                     !illegalPositions.contains(node.pos)
                 }
-                layBelt(blueprint, path, *limitations, dontOverwriteStartOrEndLimitation)
+                layBelt(beltLayerBlueprint, path, *limitations, dontOverwriteStartOrEndLimitation)
             } catch(t: Throwable) {
-                println(blueprint.visualizer().visualize())
+                println(beltLayerBlueprint.blueprint.visualizer().visualize())
                 throw t
             }
         }
     }
 
-    private fun layBelt(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation) {
+    private fun layBelt(blueprint: BeltLayerBlueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation) {
         var currentNode = generatePath(blueprint, path, *limitations)
 
-        blueprint.addBuilding(generateBuildingFor(currentNode, AStarNode(
+        blueprint.addItemBuilding(generateBuildingFor(currentNode, AStarNode(
                 pos = path.second.direction.move(currentNode.pos),
                 type = NodeType.BELT,
                 target = path.second.pos,
-                parent = currentNode)))
+                parent = currentNode)), Pair("TODO", "TODO"))//TODO
 
         while (currentNode.parent != null) {
             val parent = currentNode.parent ?: throw RuntimeException("Literally not possible")
 
-            blueprint.addBuilding(generateBuildingFor(parent, currentNode))
+            blueprint.addItemBuilding(generateBuildingFor(parent, currentNode), Pair("TODO", "TODO")) //TODO
             currentNode = parent
         }
         return
@@ -108,7 +116,7 @@ object BeltLayer {
         }
     }
 
-    private fun generatePath(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
+    private fun generatePath(blueprint: BeltLayerBlueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
         val open = mutableListOf(AStarNode(pos = path.first.pos, parent = null, target = path.second.pos, type = NodeType.BELT))
         val closed = mutableListOf<AStarNode>()
 
@@ -146,14 +154,14 @@ object BeltLayer {
             closed.add(current)
 
             if (open.isEmpty()) {
-                println(current.visualizer(blueprint).visualize())
+                println(current.visualizer(blueprint.blueprint).visualize())
             }
         }
 
         throw RuntimeException("No path found")
     }
 
-    private fun addIfValid(node: AStarNode, open: MutableList<AStarNode>, closed: MutableList<AStarNode>, blueprint: Blueprint, vararg limitations: BeltLayerLimitation) {
+    private fun addIfValid(node: AStarNode, open: MutableList<AStarNode>, closed: MutableList<AStarNode>, blueprint: BeltLayerBlueprint, vararg limitations: BeltLayerLimitation) {
         if (limitations.any { limitation -> !limitation(node) }) return
         if (node.type == NodeType.UNDERGROUND_BELT_END && node.parent?.type != NodeType.UNDERGROUND_BELT_START) return
 
