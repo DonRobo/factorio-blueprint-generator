@@ -1,6 +1,7 @@
 package com.donrobo.fpbg.blueprint
 
 import com.donrobo.fpbg.blueprint.building.Building
+import com.donrobo.fpbg.blueprint.building.Splitter
 import com.donrobo.fpbg.blueprint.building.UndergroundBelt
 import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.data.Int2
@@ -49,13 +50,34 @@ data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?, va
     val direction: Direction get() = if (parent != null) Direction.calculateDirection(parent.pos, pos) else TODO("Default direction?")
 }
 
-data class DirectionalInt2(val pos: Int2, val direction: Direction)
+data class DirectionalInt2(val pos: Int2, val direction: Direction) {
+    operator fun plus(other: Int2): DirectionalInt2 {
+        return DirectionalInt2(pos + other, direction)
+    }
+}
 
 typealias BeltLayerLimitation = (AStarNode) -> Boolean
 
 object BeltLayer {
 
     fun layBelts(blueprint: Blueprint, paths: List<Pair<DirectionalInt2, DirectionalInt2>>, vararg limitations: BeltLayerLimitation) {
+        val doubleStarts = paths.map { it.first }.groupingBy { it }.eachCount()
+
+        val betterPaths = doubleStarts.keys.associate { Pair(it, ArrayList<DirectionalInt2>()) }
+
+        doubleStarts.forEach { start, count ->
+            when (count) {
+                1 -> betterPaths[start]?.add(start)
+                2 -> run {
+                    if (start.direction != Direction.RIGHT) TODO("Direction other than right not supported yet")
+                    blueprint.addBuilding(Splitter(start.pos.x, start.pos.y, start.direction))
+                    betterPaths[start]?.add(start + Int2(1, 0))
+                    betterPaths[start]?.add(start + Int2(1, 1))
+                }
+                else -> TODO("More than 2 not supported yet")
+            }
+        }
+
         val beltLayerBlueprint = BeltLayerBlueprint(blueprint)
         paths.forEach { path ->
             try {
@@ -81,7 +103,7 @@ object BeltLayer {
 
                     !illegalPositions.contains(node.pos)
                 }
-                layBelt(beltLayerBlueprint, path, *limitations, dontOverwriteStartOrEndLimitation)
+                layBelt(beltLayerBlueprint, Pair(betterPaths[path.first]!!.removeAt(0), path.second), *limitations, dontOverwriteStartOrEndLimitation)
             } catch(t: Throwable) {
                 println(beltLayerBlueprint.blueprint.visualizer().visualize())
                 throw t

@@ -22,10 +22,10 @@ fun generateBlueprint(productionLine: ProductionLine): Blueprint {
         when (input.beltSide) {
             BeltSide.BOTH -> pathsToGenerate.add(Pair(DirectionalInt2(output.position, output.direction),
                     DirectionalInt2(input.position, Direction.UP)))
-            BeltSide.LEFT -> pathsToGenerate.add(Pair(DirectionalInt2(output.position - Int2(1, 0), output.direction),
-                    DirectionalInt2(input.position, Direction.RIGHT)))
-            BeltSide.RIGHT -> pathsToGenerate.add(Pair(DirectionalInt2(output.position + Int2(1, 0), output.direction),
-                    DirectionalInt2(input.position, Direction.LEFT)))
+            BeltSide.LEFT -> pathsToGenerate.add(Pair(DirectionalInt2(output.position, output.direction),
+                    DirectionalInt2(input.position - Int2(1, 0), Direction.RIGHT)))
+            BeltSide.RIGHT -> pathsToGenerate.add(Pair(DirectionalInt2(output.position, output.direction),
+                    DirectionalInt2(input.position + Int2(1, 0), Direction.LEFT)))
             else -> TODO("Not yet implemented")
         }
     }
