@@ -1,7 +1,9 @@
 package com.donrobo.fpbg.blueprint.building;
 
 import com.donrobo.fpbg.blueprint.Direction;
+import com.donrobo.fpbg.data.Int2;
 import net.sf.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 
 public class LongInserter extends AbstractBuilding {
     private final Direction direction;
@@ -49,5 +51,13 @@ public class LongInserter extends AbstractBuilding {
     @Override
     protected void addCustomPropertiesToJson(JSONObject json) {
         json.put("direction", direction.getDirectionValue());
+    }
+
+    @NotNull
+    @Override
+    public Building rotateCCW(@NotNull Int2 around, int count) {
+        Int2 newPosition = getPosition().rotateCCW(around, count);
+
+        return new LongInserter(newPosition.getX(), newPosition.getY(), direction.rotateCCW(count));
     }
 }

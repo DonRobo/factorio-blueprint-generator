@@ -1,7 +1,9 @@
 package com.donrobo.fpbg.blueprint.building;
 
 import com.donrobo.fpbg.blueprint.Direction;
+import com.donrobo.fpbg.data.Int2;
 import net.sf.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 
 public class UndergroundBelt extends AbstractBuilding {
 
@@ -66,4 +68,12 @@ public class UndergroundBelt extends AbstractBuilding {
     public boolean isOutput() {
         return !input;
     }
+
+    @NotNull
+    @Override
+    public Building rotateCCW(@NotNull Int2 around, int count) {
+        Int2 rotatedPosition = getPosition().rotateCCW(around, count);
+        return new UndergroundBelt(rotatedPosition.getX(), rotatedPosition.getY(), getDirection().rotateCCW(count), isInput());
+    }
+
 }

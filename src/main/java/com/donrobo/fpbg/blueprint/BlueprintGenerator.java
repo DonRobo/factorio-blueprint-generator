@@ -140,7 +140,7 @@ public class BlueprintGenerator {
                     offset++;
                 }
                 offset--;
-                UndergroundBelt newUnderground = Building.move(oldUndergroundBelt, offset, searchDirection);
+                UndergroundBelt newUnderground = (UndergroundBelt) oldUndergroundBelt.move(offset, searchDirection);
                 blueprint.addBuilding(newUnderground);
                 if (oldUndergroundBelt.isInput()) {
                     placeBeltFromTo(blueprint, oldUndergroundBelt.getX(), oldUndergroundBelt.getY(), offset, oldUndergroundBelt.getDirection());
@@ -279,7 +279,7 @@ public class BlueprintGenerator {
     private static Blueprint generateSubsectionFor(ProductionStep productionStep) {
         Blueprint subsection = new Blueprint();
 
-        int assemblingMachinesRequired = (int) Math.ceil(productionStep.getCraftingSpeed() / AssemblingMachine2.getCraftingSpeed());
+        int assemblingMachinesRequired = (int) Math.ceil(productionStep.getCraftingSpeed() / AssemblingMachine2.Companion.getCraftingSpeed());
         int inputBelts = (int) Math.ceil(productionStep.getIngredientsPerSecond().size() / 2.0);
         if (inputBelts > 2) {
             throw new RuntimeException("Not yet implemented!");

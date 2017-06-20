@@ -145,4 +145,18 @@ class Blueprint {
             }
         }
     }
+
+    fun visualize(): String {
+        return visualizer().visualize()
+    }
+
+    fun rotateCCW(around: Int2, count: Int): Blueprint {
+        val rotated = Blueprint()
+
+        for (building in buildings) {
+            rotated.addBuilding(building.rotateCCW(around, count))
+        }
+
+        return rotated
+    }
 }

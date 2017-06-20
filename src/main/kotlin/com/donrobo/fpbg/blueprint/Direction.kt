@@ -31,6 +31,22 @@ enum class Direction(val directionValue: Int) {
         return Int2(actualX, actualY)
     }
 
+    fun rotateCCW(count: Int): Direction {
+        return if (count == 0)
+            this
+        else if (count <= 3)
+            when (this) {
+                UP -> RIGHT
+                RIGHT -> DOWN
+                DOWN -> LEFT
+                LEFT -> UP
+            }.rotateCCW(count - 1)
+        else
+            throw IllegalArgumentException("Only count 1-3 are allowed!")
+
+    }
+
+
     companion object {
         fun calculateDirection(from: Int2, to: Int2): Direction {
             assert((from.x == to.x) != (from.y == to.y))

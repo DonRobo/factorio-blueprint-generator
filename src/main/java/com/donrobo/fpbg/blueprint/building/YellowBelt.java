@@ -1,9 +1,11 @@
 package com.donrobo.fpbg.blueprint.building;
 
 import com.donrobo.fpbg.blueprint.Direction;
+import com.donrobo.fpbg.data.Int2;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.jetbrains.annotations.NotNull;
 
 public class YellowBelt extends AbstractBuilding {
 
@@ -94,5 +96,13 @@ public class YellowBelt extends AbstractBuilding {
 
     public Direction getDirection() {
         return direction;
+    }
+
+    @NotNull
+    @Override
+    public Building rotateCCW(@NotNull Int2 around, int count) {
+        Int2 newPosition = getPosition().rotateCCW(around, count);
+
+        return new YellowBelt(newPosition.getX(), newPosition.getY(), direction.rotateCCW(count));
     }
 }
