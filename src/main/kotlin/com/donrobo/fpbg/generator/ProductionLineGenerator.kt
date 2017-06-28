@@ -4,33 +4,46 @@ import com.donrobo.fpbg.blueprint.BeltLayer
 import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.blueprint.Direction
 import com.donrobo.fpbg.blueprint.DirectionalInt2
-import com.donrobo.fpbg.data.BeltSide
+import com.donrobo.fpbg.blueprint.building.Splitter
+import com.donrobo.fpbg.data.BeltIoType
 import com.donrobo.fpbg.data.Int2
+import com.donrobo.fpbg.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionLine
 
-fun generateBlueprint(productionLine: ProductionLine): Blueprint {
-    val stepsLayout = ProductionStepsLayout(productionLine.productionSteps)
-    val blueprint = stepsLayout.generateBlueprint()
+class ProductionLineGenerator(val productionLine: ProductionLine) {
 
-    val pathsToGenerate = ArrayList<Pair<DirectionalInt2, DirectionalInt2>>()
+    fun generateBlueprint(): Blueprint {
+        val stepsLayout = ProductionStepsLayout(productionLine.productionSteps)
+        val blueprint = stepsLayout.generateBlueprint()
 
-    stepsLayout.inputs.forEach { input ->
-        val output = productionLine.materialInputs.find { it.item == input.item }
-                ?: stepsLayout.outputs.find { it.item == input.item }
-                ?: throw RuntimeException("Missing output for ${input.item}")
+        val pathsToGenerate = ArrayList<Pair<DirectionalInt2, DirectionalInt2>>()
 
-        when (input.beltSide) {
-            BeltSide.BOTH -> pathsToGenerate.add(Pair(DirectionalInt2(output.position, output.direction),
-                    DirectionalInt2(input.position, Direction.UP)))
-            BeltSide.LEFT -> pathsToGenerate.add(Pair(DirectionalInt2(output.position, output.direction),
-                    DirectionalInt2(input.position - Int2(1, 0), Direction.RIGHT)))
-            BeltSide.RIGHT -> pathsToGenerate.add(Pair(DirectionalInt2(output.position, output.direction),
-                    DirectionalInt2(input.position + Int2(1, 0), Direction.LEFT)))
-            else -> TODO("Not yet implemented")
+        val beltsNeeded = stepsLayout.inputs.groupingBy { it.item }.eachCount()
+        val stepsLayoutsInputsMap = stepsLayout.inputs.associateBy { it.item }
+
+        val actualOutputs = ArrayList<PositionalBeltIo>()
+
+        beltsNeeded.forEach { (item, count) ->
+            //            val beltIo = stepsLayoutsInputsMap[item] ?: throw RuntimeException("Something got lost somewhere")
+            val output = productionLine.materialInputs.find { it.item == item }
+                    ?: stepsLayout.outputs.find { it.item == item }
+                    ?: throw RuntimeException("Missing output for $item")
+            when (count) {
+                1 -> actualOutputs.add(output)
+                2 -> when (output.direction) {
+                    Direction.RIGHT -> run {
+                        blueprint.addBuilding(Splitter(output.position.x, output.position.y, Direction.RIGHT))
+                        actualOutputs.add(PositionalBeltIo(position = output.position + Int2(1, 0), type = BeltIoType.OUTPUT,
+                                direction = Direction.RIGHT, beltSide = output.beltSide, item = output.item))
+                    }
+                    else -> TODO("Only RIGHT for now")
+                }
+            }
         }
+
+        BeltLayer.layBelts(blueprint, pathsToGenerate, { it.pos.x > ProductionLine.materialInputsOffset })
+
+        return blueprint
     }
 
-    BeltLayer.layBelts(blueprint, pathsToGenerate, { it.pos.x > ProductionLine.materialInputsOffset })
-
-    return blueprint
 }

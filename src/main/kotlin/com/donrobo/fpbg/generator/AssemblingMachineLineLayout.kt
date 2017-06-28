@@ -45,6 +45,16 @@ class AssemblingMachineLineLayout(val recipe: Recipe, val resultsPerSecond: Doub
                     "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
                     blueprint.visualizer().visualize())
         }
+
+        when (inputs.size) {
+        //TODO do stuff here
+        }
+        if (inputs.size > 2) {
+            TODO("Not supported yet")
+        }
+
+
+
         return blueprint
     }
 

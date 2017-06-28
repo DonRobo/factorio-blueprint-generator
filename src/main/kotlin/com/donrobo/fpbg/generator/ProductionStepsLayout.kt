@@ -10,7 +10,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
 
     val assemblingMachineLineLayouts = productionSteps.map { AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count) }
 
-    val width = assemblingMachineLineLayouts.map { it.width + 1 }.sum() - 1
+    val width = assemblingMachineLineLayouts.map { it.width }.sum()
 
     val height = assemblingMachineLineLayouts.map { it.height }.max() ?: 0
 
@@ -20,7 +20,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
 
             return assemblingMachineLineLayouts.flatMap { psl ->
                 val oldInterStepOffset = interStepOffset
-                interStepOffset += psl.width + 1
+                interStepOffset += psl.width
                 psl.inputs.map {
                     PositionalBeltIo(
                             position = Int2(oldInterStepOffset + it.beltIndex, 1),
@@ -36,10 +36,10 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
             var interStepOffset = 0
 
             return assemblingMachineLineLayouts.map {
-                interStepOffset += it.width + 1
+                interStepOffset += it.width
 
                 PositionalBeltIo(
-                        position = Int2(interStepOffset - 2, 1),
+                        position = Int2(interStepOffset - 1, 1),
                         type = BeltIoType.OUTPUT,
                         beltSide = it.output.beltSide,
                         item = it.output.item)
@@ -53,7 +53,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
 
         for (subPrint in assemblingMachineLineLayouts.map { it.generateBlueprint() }) {
             blueprint.addBlueprint(subPrint, x, 0)
-            x += subPrint.width + 1
+            x += subPrint.width
         }
 
         if (!(blueprint.width == width && blueprint.height == height)) {

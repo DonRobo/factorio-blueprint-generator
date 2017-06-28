@@ -1,31 +1,10 @@
 package com.donrobo.fpbg.blueprint
 
 import com.donrobo.fpbg.blueprint.building.Building
-import com.donrobo.fpbg.blueprint.building.Splitter
 import com.donrobo.fpbg.blueprint.building.UndergroundBelt
 import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.util.MapVisualizer
-
-//data class LayedBeltNode(val pos: Int2, val direction: Direction, val type: NodeType, val itemLeftSide: String, val itemRightSide: String)
-
-private class BeltLayerBlueprint(val blueprint: Blueprint) {
-
-    val itemInformation = HashMap<Int2, Pair<String, String>>()
-
-    fun addItemBuilding(building: Building, items: Pair<String, String>) {
-        blueprint.addBuilding(building)
-        itemInformation.put(Int2(building.x, building.y), items)
-    }
-
-    fun isOccupied(pos: Int2): Boolean {
-        return blueprint.isOccupied(pos)
-    }
-
-    operator fun get(pos: Int2): Building? {
-        return blueprint[pos]
-    }
-}
 
 enum class NodeType {
     BELT, UNDERGROUND_BELT_START, UNDERGROUND_BELT_END
@@ -61,24 +40,6 @@ typealias BeltLayerLimitation = (AStarNode) -> Boolean
 object BeltLayer {
 
     fun layBelts(blueprint: Blueprint, paths: List<Pair<DirectionalInt2, DirectionalInt2>>, vararg limitations: BeltLayerLimitation) {
-        val doubleStarts = paths.map { it.first }.groupingBy { it }.eachCount()
-
-        val betterPaths = doubleStarts.keys.associate { Pair(it, ArrayList<DirectionalInt2>()) }
-
-        doubleStarts.forEach { start, count ->
-            when (count) {
-                1 -> betterPaths[start]?.add(start)
-                2 -> run {
-                    if (start.direction != Direction.RIGHT) TODO("Direction other than right not supported yet")
-                    blueprint.addBuilding(Splitter(start.pos.x, start.pos.y, start.direction))
-                    betterPaths[start]?.add(start + Int2(1, 0))
-                    betterPaths[start]?.add(start + Int2(1, 1))
-                }
-                else -> TODO("More than 2 not supported yet")
-            }
-        }
-
-        val beltLayerBlueprint = BeltLayerBlueprint(blueprint)
         paths.forEach { path ->
             try {
                 val dontOverwriteStartOrEndLimitation: (AStarNode) -> Boolean = { node ->
@@ -95,7 +56,7 @@ object BeltLayer {
                         } else {
                             if (node.type == NodeType.UNDERGROUND_BELT_START) { //can't start underground belt where the goal is supposed to be
                                 illegalPositions.add(p.second.pos)
-                            } else if (node.type == NodeType.UNDERGROUND_BELT_END && Direction.calculateDirection(node.parent!!.pos, node.pos) != p.second.direction) {
+                            } else if (node.type == NodeType.UNDERGROUND_BELT_END && node.direction != p.second.direction) {
                                 illegalPositions.add(p.second.pos) //can't end an underground belt in the wrong direction at the goal
                             }
                         }
@@ -103,27 +64,27 @@ object BeltLayer {
 
                     !illegalPositions.contains(node.pos)
                 }
-                layBelt(beltLayerBlueprint, Pair(betterPaths[path.first]!!.removeAt(0), path.second), *limitations, dontOverwriteStartOrEndLimitation)
+                layBelt(blueprint, Pair(path.first, path.second), *limitations, dontOverwriteStartOrEndLimitation)
             } catch(t: Throwable) {
-                println(beltLayerBlueprint.blueprint.visualizer().visualize())
+                println(blueprint.visualizer().visualize())
                 throw t
             }
         }
     }
 
-    private fun layBelt(blueprint: BeltLayerBlueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation) {
+    private fun layBelt(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation) {
         var currentNode = generatePath(blueprint, path, *limitations)
 
-        blueprint.addItemBuilding(generateBuildingFor(currentNode, AStarNode(
+        blueprint.addBuilding(generateBuildingFor(currentNode, AStarNode(
                 pos = path.second.direction.move(currentNode.pos),
                 type = NodeType.BELT,
                 target = path.second.pos,
-                parent = currentNode)), Pair("TODO", "TODO"))//TODO
+                parent = currentNode)))
 
         while (currentNode.parent != null) {
             val parent = currentNode.parent ?: throw RuntimeException("Literally not possible")
 
-            blueprint.addItemBuilding(generateBuildingFor(parent, currentNode), Pair("TODO", "TODO")) //TODO
+            blueprint.addBuilding(generateBuildingFor(parent, currentNode))
             currentNode = parent
         }
         return
@@ -138,7 +99,7 @@ object BeltLayer {
         }
     }
 
-    private fun generatePath(blueprint: BeltLayerBlueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
+    private fun generatePath(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
         val open = mutableListOf(AStarNode(pos = path.first.pos, parent = null, target = path.second.pos, type = NodeType.BELT))
         val closed = mutableListOf<AStarNode>()
 
@@ -154,13 +115,13 @@ object BeltLayer {
             when (current.type) {
                 NodeType.UNDERGROUND_BELT_START -> for (i in 1..5) {
                     if (current.parent != null) {
-                        val underEnd = Direction.calculateDirection(current.parent.pos, current.pos).move(current.pos, i)
+                        val underEnd = current.direction.move(current.pos, i)
                         val node = AStarNode(pos = underEnd, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_END)
                         addIfValid(node, open, closed, blueprint, *limitations)
                     }
                 }
                 NodeType.UNDERGROUND_BELT_END -> if (current.parent != null) {
-                    val adj = Direction.calculateDirection(current.parent.pos, current.pos).move(current.pos)
+                    val adj = current.direction.move(current.pos)
                     val node = AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT)
                     addIfValid(node, open, closed, blueprint, *limitations)
                 }
@@ -176,14 +137,14 @@ object BeltLayer {
             closed.add(current)
 
             if (open.isEmpty()) {
-                println(current.visualizer(blueprint.blueprint).visualize())
+                println(current.visualizer(blueprint).visualize())
             }
         }
 
         throw RuntimeException("No path found")
     }
 
-    private fun addIfValid(node: AStarNode, open: MutableList<AStarNode>, closed: MutableList<AStarNode>, blueprint: BeltLayerBlueprint, vararg limitations: BeltLayerLimitation) {
+    private fun addIfValid(node: AStarNode, open: MutableList<AStarNode>, closed: MutableList<AStarNode>, blueprint: Blueprint, vararg limitations: BeltLayerLimitation) {
         if (limitations.any { limitation -> !limitation(node) }) return
         if (node.type == NodeType.UNDERGROUND_BELT_END && node.parent?.type != NodeType.UNDERGROUND_BELT_START) return
 
