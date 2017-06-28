@@ -30,9 +30,9 @@ class AssemblingMachine2(val recipe: String, x: Int, y: Int) : AbstractBuilding(
         json.put("recipe", recipe)
     }
 
-    override fun rotateCCW(around: Int2, count: Int): Building {
+    override fun rotateCW(around: Int2, count: Int): Building {
         TODO("Untested")
-//        val newPosition = position.rotateCCW(around, count) //probably some magic needed here
+//        val newPosition = position.rotateCW(around, count) //probably some magic needed here
 //
 //        return AssemblingMachine2(recipe, newPosition.x, newPosition.y)
     }

@@ -23,7 +23,7 @@ interface Building {
 
     val visualizationCharacter: Char
 
-    fun rotateCCW(around: Int2, count: Int): Building
+    fun rotateCW(around: Int2, count: Int): Building
 
     fun move(offset: Int, direction: Direction): Building
 }

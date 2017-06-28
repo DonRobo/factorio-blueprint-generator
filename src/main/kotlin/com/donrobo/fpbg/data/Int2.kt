@@ -13,7 +13,7 @@ data class Int2(val x: Int, val y: Int) {
         return Int2(x - other.x, y - other.y)
     }
 
-    fun rotateCCW(around: Int2 = Int2(0, 0), count: Int): Int2 {
+    fun rotateCW(around: Int2 = Int2(0, 0), count: Int): Int2 {
         val newX = when (count) {
             1 -> -(y - around.y)
             2 -> -(x - around.x)

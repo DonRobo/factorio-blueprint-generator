@@ -31,7 +31,7 @@ enum class Direction(val directionValue: Int) {
         return Int2(actualX, actualY)
     }
 
-    fun rotateCCW(count: Int): Direction {
+    fun rotateCW(count: Int): Direction {
         return if (count == 0)
             this
         else if (count <= 3)
@@ -40,7 +40,7 @@ enum class Direction(val directionValue: Int) {
                 RIGHT -> DOWN
                 DOWN -> LEFT
                 LEFT -> UP
-            }.rotateCCW(count - 1)
+            }.rotateCW(count - 1)
         else
             throw IllegalArgumentException("Only count 1-3 are allowed!")
 

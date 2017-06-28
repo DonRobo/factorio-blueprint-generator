@@ -32,10 +32,10 @@ class Splitter(x: Int, y: Int, val direction: Direction) : AbstractBuilding(x, y
         json.put("direction", direction.reversed.directionValue)
     }
 
-    override fun rotateCCW(around: Int2, count: Int): Building {
-        val newDirection = direction.rotateCCW(count)
+    override fun rotateCW(around: Int2, count: Int): Building {
+        val newDirection = direction.rotateCW(count)
 
-        val newPosition = position.rotateCCW(around, count) + when (direction) {
+        val newPosition = position.rotateCW(around, count) + when (direction) {
             UP, RIGHT -> when (newDirection) {
                 DOWN -> Int2(-1, 0)
                 LEFT -> Int2(0, -1)

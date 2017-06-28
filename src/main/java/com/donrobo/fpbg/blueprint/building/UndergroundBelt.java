@@ -71,9 +71,9 @@ public class UndergroundBelt extends AbstractBuilding {
 
     @NotNull
     @Override
-    public Building rotateCCW(@NotNull Int2 around, int count) {
-        Int2 rotatedPosition = getPosition().rotateCCW(around, count);
-        return new UndergroundBelt(rotatedPosition.getX(), rotatedPosition.getY(), getDirection().rotateCCW(count), isInput());
+    public Building rotateCW(@NotNull Int2 around, int count) {
+        Int2 rotatedPosition = getPosition().rotateCW(around, count);
+        return new UndergroundBelt(rotatedPosition.getX(), rotatedPosition.getY(), getDirection().rotateCW(count), isInput());
     }
 
 }

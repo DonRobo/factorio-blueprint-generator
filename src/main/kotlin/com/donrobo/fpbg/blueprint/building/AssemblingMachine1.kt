@@ -30,9 +30,9 @@ class AssemblingMachine1(val recipe: String, x: Int, y: Int) : AbstractBuilding(
     override val blueprintYOffset: Double
         get() = 1.0
 
-    override fun rotateCCW(around: Int2, count: Int): Building {
+    override fun rotateCW(around: Int2, count: Int): Building {
         TODO("Untested")
-//        val newPosition = position.rotateCCW(around, count) //probably some magic needed here
+//        val newPosition = position.rotateCW(around, count) //probably some magic needed here
 //
 //        return AssemblingMachine1(recipe, newPosition.x, newPosition.y)
     }

@@ -37,9 +37,9 @@ class BlueprintTest {
 
         assertEquals("^ ^", blueprint.visualize())
 
-        assertEquals(">\n \n>", blueprint.rotateCCW(Int2(0, 0), 1).visualize())
-        assertEquals("v v", blueprint.rotateCCW(Int2(0, 0), 2).visualize())
-        assertEquals("<\n \n<", blueprint.rotateCCW(Int2(0, 0), 3).visualize())
+        assertEquals(">\n \n>", blueprint.rotateCW(Int2(0, 0), 1).visualize())
+        assertEquals("v v", blueprint.rotateCW(Int2(0, 0), 2).visualize())
+        assertEquals("<\n \n<", blueprint.rotateCW(Int2(0, 0), 3).visualize())
     }
 
     @Test
@@ -52,10 +52,10 @@ class BlueprintTest {
         assertFalse(blueprint.isOccupied(0, -1))
         assertEquals("^ ^", blueprint.visualize())
 
-        assertEquals(">\n \n>", blueprint.rotateCCW(Int2(1, 0), 1).visualize())
-        assertTrue(blueprint.rotateCCW(Int2(1, 0), 1).isOccupied(1, -1))
-        assertEquals("v v", blueprint.rotateCCW(Int2(1, 0), 2).visualize())
-        assertEquals("<\n \n<", blueprint.rotateCCW(Int2(1, 0), 3).visualize())
+        assertEquals(">\n \n>", blueprint.rotateCW(Int2(1, 0), 1).visualize())
+        assertTrue(blueprint.rotateCW(Int2(1, 0), 1).isOccupied(1, -1))
+        assertEquals("v v", blueprint.rotateCW(Int2(1, 0), 2).visualize())
+        assertEquals("<\n \n<", blueprint.rotateCW(Int2(1, 0), 3).visualize())
     }
 
     @Test
@@ -73,9 +73,9 @@ class BlueprintTest {
         assertTrue((splitterFromBlueprint as Splitter).direction == RIGHT)
         assertEquals(">S^\n>Sv", blueprint.visualize())
 
-        val rotate1 = blueprint.rotateCCW(Int2(0, 0), 1)
-        val rotate3 = blueprint.rotateCCW(Int2(0, 0), 3)
-        val rotate2 = blueprint.rotateCCW(Int2(0, 0), 2)
+        val rotate1 = blueprint.rotateCW(Int2(0, 0), 1)
+        val rotate3 = blueprint.rotateCW(Int2(0, 0), 3)
+        val rotate2 = blueprint.rotateCW(Int2(0, 0), 2)
 
         assertEquals("vv\nSS\n<>", rotate1.visualize())
         assertTrue((rotate1[0, 1] as Splitter).direction == DOWN)

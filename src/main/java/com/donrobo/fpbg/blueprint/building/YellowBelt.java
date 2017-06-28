@@ -100,9 +100,9 @@ public class YellowBelt extends AbstractBuilding {
 
     @NotNull
     @Override
-    public Building rotateCCW(@NotNull Int2 around, int count) {
-        Int2 newPosition = getPosition().rotateCCW(around, count);
+    public Building rotateCW(@NotNull Int2 around, int count) {
+        Int2 newPosition = getPosition().rotateCW(around, count);
 
-        return new YellowBelt(newPosition.getX(), newPosition.getY(), direction.rotateCCW(count));
+        return new YellowBelt(newPosition.getX(), newPosition.getY(), direction.rotateCW(count));
     }
 }

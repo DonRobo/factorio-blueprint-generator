@@ -55,9 +55,9 @@ public class FastInserter extends AbstractBuilding {
 
     @NotNull
     @Override
-    public Building rotateCCW(@NotNull Int2 around, int count) {
-        Int2 newPos = getPosition().rotateCCW(around, count);
+    public Building rotateCW(@NotNull Int2 around, int count) {
+        Int2 newPos = getPosition().rotateCW(around, count);
 
-        return new FastInserter(newPos.getX(), newPos.getY(), direction.rotateCCW(count));
+        return new FastInserter(newPos.getX(), newPos.getY(), direction.rotateCW(count));
     }
 }
