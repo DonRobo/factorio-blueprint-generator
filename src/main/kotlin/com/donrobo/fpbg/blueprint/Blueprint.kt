@@ -1,6 +1,8 @@
 package com.donrobo.fpbg.blueprint
 
+import com.donrobo.fpbg.blueprint.Direction.*
 import com.donrobo.fpbg.blueprint.building.Building
+import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.util.MapVisualizer
 import net.sf.json.JSONArray
@@ -150,13 +152,32 @@ class Blueprint {
         return visualizer().visualize()
     }
 
-    fun rotateCCW(around: Int2, count: Int): Blueprint {
+    fun rotateCW(around: Int2 = Int2(0, 0), count: Int): Blueprint {
         val rotated = Blueprint()
 
         for (building in buildings) {
-            rotated.addBuilding(building.rotateCCW(around, count))
+            rotated.addBuilding(building.rotateCW(around, count))
         }
 
         return rotated
     }
+}
+
+fun String.toBeltBlueprint(): Blueprint {
+    val blueprint = Blueprint()
+
+    toCharArray().forEachIndexed { index, buildingChar ->
+        if (buildingChar != ' ')
+            blueprint.addBuilding(when (buildingChar) {
+                '^' -> YellowBelt(index, 0, UP)
+                '>' -> YellowBelt(index, 0, RIGHT)
+                'v' -> YellowBelt(index, 0, DOWN)
+                '<' -> YellowBelt(index, 0, LEFT)
+                else -> throw IllegalArgumentException("$buildingChar is not supported")
+            })
+    }
+
+    if (!contains(' ')) assert(blueprint.width == length)
+    assert(blueprint.height == 1)
+    return blueprint
 }

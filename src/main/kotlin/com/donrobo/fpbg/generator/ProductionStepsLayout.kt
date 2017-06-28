@@ -6,7 +6,10 @@ import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 import com.donrobo.fpbg.planner.ProductionStep
 
-class ProductionStepsLayout(val productionSteps: List<ProductionStep>) {
+/**
+ * Multiple lines of assembling machines producing various stuff
+ */
+class ProductionStepsLayout(val productionSteps: List<ProductionStep>) : Layout {
 
     val assemblingMachineLineLayouts = productionSteps.map { AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count) }
 

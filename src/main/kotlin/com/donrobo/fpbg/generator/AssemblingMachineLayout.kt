@@ -5,8 +5,10 @@ import com.donrobo.fpbg.blueprint.Direction.*
 import com.donrobo.fpbg.blueprint.building.*
 import com.donrobo.fpbg.data.*
 
-
-class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Double) {
+/**
+ * One assembling machine
+ */
+class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Double) : Layout {
     val width: Int
         get() {
             val inputBelts = if (doubleInputBelts) 2 else 1

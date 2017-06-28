@@ -4,13 +4,14 @@ import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.blueprint.Direction
 import com.donrobo.fpbg.blueprint.Direction.*
 import com.donrobo.fpbg.blueprint.building.Splitter
+import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.blueprint.toBeltBlueprint
 import com.donrobo.fpbg.data.BeltIoType
 import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
-class TwoToOneLayout(val direction: Direction, val item1: String, val item2: String) : Layout {
+class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: String, val item3: String) : Layout {
 
     private val Direction.rotationOffset: Int get() = when (this) {
         UP -> 0
@@ -21,15 +22,22 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
 
     val inputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
-                    position = Int2(-1, 2).rotateCW(count = direction.rotationOffset),
+                    position = Int2(0, 3).rotateCW(count = direction.rotationOffset),
+                    item = item1,
+                    beltSide = BeltSide.BOTH,
+                    direction = UP.rotateCW(direction.rotationOffset),
+                    type = BeltIoType.INPUT
+            ),
+            PositionalBeltIo(
+                    position = Int2(-1, 3).rotateCW(count = direction.rotationOffset),
                     item = item2,
                     beltSide = BeltSide.BOTH,
                     direction = UP.rotateCW(direction.rotationOffset),
                     type = BeltIoType.INPUT
             ),
             PositionalBeltIo(
-                    position = Int2(0, 2).rotateCW(count = direction.rotationOffset),
-                    item = item1,
+                    position = Int2(-2, 3).rotateCW(count = direction.rotationOffset),
+                    item = item3,
                     beltSide = BeltSide.BOTH,
                     direction = UP.rotateCW(direction.rotationOffset),
                     type = BeltIoType.INPUT
@@ -39,16 +47,23 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
 
     val outputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
-                    position = Int2(0, 0),
+                    position = Int2(0, 0).rotateCW(count = direction.rotationOffset),
+                    item = item1,
+                    beltSide = BeltSide.RIGHT,
+                    direction = UP.rotateCW(direction.rotationOffset),
+                    type = BeltIoType.OUTPUT
+            ),
+            PositionalBeltIo(
+                    position = Int2(0, 0).rotateCW(count = direction.rotationOffset),
                     item = item2,
                     beltSide = BeltSide.LEFT,
                     direction = UP.rotateCW(direction.rotationOffset),
                     type = BeltIoType.OUTPUT
             ),
             PositionalBeltIo(
-                    position = Int2(0, 0),
-                    item = item1,
-                    beltSide = BeltSide.RIGHT,
+                    position = Int2(-1, 0).rotateCW(count = direction.rotationOffset),
+                    item = item3,
+                    beltSide = BeltSide.BOTH,
                     direction = UP.rotateCW(direction.rotationOffset),
                     type = BeltIoType.OUTPUT
             )
@@ -58,13 +73,17 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
         val blueprint = Blueprint()
 
         /*
-         * >^<
-         * ^>^
-         * SS
+         * >^^
+         * ^>^<
+         * ^^>^
+         * ^SS
          */
-        blueprint.addBlueprint(">^<".toBeltBlueprint(), -1, 0)
-        blueprint.addBlueprint("^>^".toBeltBlueprint(), -1, 1)
-        blueprint.addBuilding(Splitter(-1, 2, UP))
+        blueprint.addBlueprint(">^^".toBeltBlueprint(), -2, 0)
+        blueprint.addBlueprint("^>^<".toBeltBlueprint(), -2, 1)
+        blueprint.addBlueprint("^^>^".toBeltBlueprint(), -2, 2)
+
+        blueprint.addBuilding(YellowBelt(-2, 3, UP))
+        blueprint.addBuilding(Splitter(-1, 3, UP))
 
         return when (direction) {
             UP -> blueprint
