@@ -11,7 +11,7 @@ import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
-class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: String, val item3: String) : Layout {
+class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: String, val item3: String, override val x: Int, override val y: Int) : PositionalLayout {
 
     private val Direction.rotationOffset: Int get() = when (this) {
         UP -> 0
@@ -20,7 +20,10 @@ class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: S
         LEFT -> 3
     }
 
-    val inputs: List<PositionalBeltIo> get() = listOf(
+    override val width: Int = 4
+    override val height: Int = 4
+
+    override val inputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
                     position = Int2(0, 3).rotateCW(count = direction.rotationOffset),
                     item = item1,
@@ -45,7 +48,7 @@ class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: S
     )
 
 
-    val outputs: List<PositionalBeltIo> get() = listOf(
+    override val outputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
                     position = Int2(0, 0).rotateCW(count = direction.rotationOffset),
                     item = item1,
@@ -69,7 +72,7 @@ class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: S
             )
     )
 
-    fun generateBlueprint(): Blueprint {
+    override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
 
         /*
@@ -90,7 +93,7 @@ class ThreeToTwoLayout(val direction: Direction, val item1: String, val item2: S
             RIGHT -> blueprint.rotateCW(count = 1)
             DOWN -> blueprint.rotateCW(count = 2)
             LEFT -> blueprint.rotateCW(count = 3)
-        }
+        }.move(x, y)
     }
 
 }

@@ -10,7 +10,7 @@ import java.awt.datatransfer.StringSelection
 import java.io.File
 
 fun main(args: Array<String>) {
-    val file = File("G:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\")
+    val file = File("C:\\Games\\SteamLibrary\\steamapps\\common\\Factorio\\")
     //        File file = new File("D:\\Games\\Steam\\steamapps\\common\\Factorio\\");
     val recipes = RecipeLoader.loadRecipes(file)
 
@@ -18,18 +18,13 @@ fun main(args: Array<String>) {
 
     val productionLinePlanner = ProductionLinePlanner(recipes)
 
-    //        ProductionLine productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
-    //                new FractionalItemStack(1, new Item("transport-belt")),
-    //                new FractionalItemStack(1, new Item("splitter")),
-    //                new FractionalItemStack(1, new Item("underground-belt")),
-    //                new FractionalItemStack(1, new Item("fast-transport-belt")),
-    //                new FractionalItemStack(1, new Item("fast-splitter")),
-    //                new FractionalItemStack(1, new Item("fast-underground-belt"))
-    //        );
     val productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
-            //                new FractionalItemStack(1, new Item("iron-gear-wheel")),
-            //                new FractionalItemStack(1, new Item("copper-cable"))
-            FractionalItemStack(1.0, Item("transport-belt"))
+            FractionalItemStack(1.0, Item("transport-belt")),
+            FractionalItemStack(1.0, Item("splitter")),
+            FractionalItemStack(1.0, Item("underground-belt")),
+            FractionalItemStack(1.0, Item("fast-transport-belt")),
+            FractionalItemStack(1.0, Item("fast-splitter")),
+            FractionalItemStack(1.0, Item("fast-underground-belt"))
     )
     println(productionLine)
 

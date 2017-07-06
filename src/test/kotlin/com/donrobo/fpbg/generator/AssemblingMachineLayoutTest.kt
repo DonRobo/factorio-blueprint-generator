@@ -16,49 +16,39 @@ class AssemblingMachineLayoutTest : StringSpec() {
 
             val prod1 = AssemblingMachineLayout(aRecipe(ingredientCount = 1), 1.0)
             prod1.inputs.size shouldBe 1
-            prod1.inputs[0].beltIndex shouldBe 0
             prod1.inputs[0].beltSide shouldBe BeltSide.BOTH
             prod1.inputs[0].item shouldBe "item-1"
 
             val prod2 = AssemblingMachineLayout(aRecipe(ingredientCount = 2), 1.0)
             prod2.inputs.size shouldBe 2
-            prod2.inputs[0].beltIndex shouldBe 0
             prod2.inputs[0].beltSide shouldBe BeltSide.LEFT
             prod2.inputs[0].item shouldBe "item-1"
 
-            prod2.inputs[1].beltIndex shouldBe 0
             prod2.inputs[1].beltSide shouldBe BeltSide.RIGHT
             prod2.inputs[1].item shouldBe "item-2"
 
             val prod3 = AssemblingMachineLayout(aRecipe(ingredientCount = 3), 1.0)
             prod3.inputs.size shouldBe 3
-            prod3.inputs[0].beltIndex shouldBe 0
             prod3.inputs[0].beltSide shouldBe BeltSide.LEFT
             prod3.inputs[0].item shouldBe "item-1"
 
-            prod3.inputs[1].beltIndex shouldBe 0
             prod3.inputs[1].beltSide shouldBe BeltSide.RIGHT
             prod3.inputs[1].item shouldBe "item-2"
 
-            prod3.inputs[2].beltIndex shouldBe 1
             prod3.inputs[2].beltSide shouldBe BeltSide.BOTH
             prod3.inputs[2].item shouldBe "item-3"
 
             val prod4 = AssemblingMachineLayout(aRecipe(ingredientCount = 4), 1.0)
             prod4.inputs.size shouldBe 4
-            prod4.inputs[0].beltIndex shouldBe 0
             prod4.inputs[0].beltSide shouldBe BeltSide.LEFT
             prod4.inputs[0].item shouldBe "item-1"
 
-            prod4.inputs[1].beltIndex shouldBe 0
             prod4.inputs[1].beltSide shouldBe BeltSide.RIGHT
             prod3.inputs[1].item shouldBe "item-2"
 
-            prod4.inputs[2].beltIndex shouldBe 1
             prod4.inputs[2].beltSide shouldBe BeltSide.LEFT
             prod4.inputs[2].item shouldBe "item-3"
 
-            prod4.inputs[3].beltIndex shouldBe 1
             prod4.inputs[3].beltSide shouldBe BeltSide.RIGHT
             prod4.inputs[3].item shouldBe "item-4"
         }

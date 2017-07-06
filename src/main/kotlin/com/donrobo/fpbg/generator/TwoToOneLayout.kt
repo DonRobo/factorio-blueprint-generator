@@ -10,7 +10,7 @@ import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
-class TwoToOneLayout(val direction: Direction, val item1: String, val item2: String) : Layout {
+class TwoToOneLayout(val direction: Direction, val item1: String, val item2: String, override val x: Int, override val y: Int) : PositionalLayout {
 
     private val Direction.rotationOffset: Int get() = when (this) {
         UP -> 0
@@ -19,7 +19,10 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
         LEFT -> 3
     }
 
-    val inputs: List<PositionalBeltIo> get() = listOf(
+    override val width: Int = 3
+    override val height: Int = 3
+
+    override val inputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
                     position = Int2(-1, 2).rotateCW(count = direction.rotationOffset),
                     item = item2,
@@ -37,7 +40,7 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
     )
 
 
-    val outputs: List<PositionalBeltIo> get() = listOf(
+    override val outputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
                     position = Int2(0, 0),
                     item = item2,
@@ -54,7 +57,7 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
             )
     )
 
-    fun generateBlueprint(): Blueprint {
+    override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
 
         /*
@@ -71,7 +74,7 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
             RIGHT -> blueprint.rotateCW(count = 1)
             DOWN -> blueprint.rotateCW(count = 2)
             LEFT -> blueprint.rotateCW(count = 3)
-        }
+        }.move(x, y)
     }
 
 }

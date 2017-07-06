@@ -83,6 +83,14 @@ class Blueprint {
         blueprint.buildings.map { b -> b.move(xOffset, yOffset) }.forEach { this.addBuilding(it) }
     }
 
+    fun move(xOffset: Int, yOffset: Int): Blueprint {
+        val blueprint = Blueprint()
+
+        blueprint.addBlueprint(this, xOffset, yOffset)
+
+        return blueprint
+    }
+
     val minimumX: Int
         get() = buildings.map { it.x }.min() ?: 0
 

@@ -14,6 +14,8 @@ data class Int2(val x: Int, val y: Int) {
     }
 
     fun rotateCW(around: Int2 = Int2(0, 0), count: Int): Int2 {
+        if (count == 0) return this
+
         val newX = when (count) {
             1 -> -(y - around.y)
             2 -> -(x - around.x)
@@ -28,5 +30,9 @@ data class Int2(val x: Int, val y: Int) {
         } + around.y
 
         return Int2(newX, newY)
+    }
+
+    fun manhattanDistance(position: Int2): Int {
+        return Math.abs(position.x - x) + Math.abs(position.y - y)
     }
 }

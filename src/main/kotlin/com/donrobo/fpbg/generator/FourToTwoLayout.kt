@@ -10,7 +10,7 @@ import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
-class FourToTwoLayout(val direction: Direction, val item1: String, val item2: String, val item3: String, val item4: String) : Layout {
+class FourToTwoLayout(val direction: Direction, val item1: String, val item2: String, val item3: String, val item4: String, override val x: Int, override val y: Int) : PositionalLayout {
 
     private val Direction.rotationOffset: Int get() = when (this) {
         UP -> 0
@@ -18,8 +18,17 @@ class FourToTwoLayout(val direction: Direction, val item1: String, val item2: St
         DOWN -> 2
         LEFT -> 3
     }
+    override val width: Int = when (direction) {
+        UP, DOWN -> 6
+        LEFT, RIGHT -> 4
+    }
 
-    val inputs: List<PositionalBeltIo> get() = listOf(
+    override val height: Int = when (direction) {
+        LEFT, RIGHT -> 4
+        UP, DOWN -> 6
+    }
+
+    override val inputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
                     position = Int2(1, 3).rotateCW(count = direction.rotationOffset),
                     item = item1,
@@ -51,7 +60,7 @@ class FourToTwoLayout(val direction: Direction, val item1: String, val item2: St
     )
 
 
-    val outputs: List<PositionalBeltIo> get() = listOf(
+    override val outputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
                     position = Int2(0, 0).rotateCW(count = direction.rotationOffset),
                     item = item1,
@@ -82,7 +91,7 @@ class FourToTwoLayout(val direction: Direction, val item1: String, val item2: St
             )
     )
 
-    fun generateBlueprint(): Blueprint {
+    override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
 
         /*
@@ -103,7 +112,7 @@ class FourToTwoLayout(val direction: Direction, val item1: String, val item2: St
             RIGHT -> blueprint.rotateCW(count = 1)
             DOWN -> blueprint.rotateCW(count = 2)
             LEFT -> blueprint.rotateCW(count = 3)
-        }
+        }.move(x, y)
     }
 
 }

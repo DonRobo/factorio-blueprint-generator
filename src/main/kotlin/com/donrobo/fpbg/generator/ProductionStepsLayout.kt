@@ -11,13 +11,13 @@ import com.donrobo.fpbg.planner.ProductionStep
  */
 class ProductionStepsLayout(val productionSteps: List<ProductionStep>) : Layout {
 
-    val assemblingMachineLineLayouts = productionSteps.map { AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count) }
+    val assemblingMachineLineLayouts = productionSteps.map { FullBeltWrapperLayout(AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count)) }
 
-    val width = assemblingMachineLineLayouts.map { it.width }.sum()
+    override val width = generateBlueprint().width
 
-    val height = assemblingMachineLineLayouts.map { it.height }.max() ?: 0
+    override val height = generateBlueprint().height
 
-    val inputs: List<PositionalBeltIo>
+    override val inputs: List<PositionalBeltIo>
         get() {
             var interStepOffset = 0
 
@@ -26,7 +26,7 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) : Layout 
                 interStepOffset += psl.width
                 psl.inputs.map {
                     PositionalBeltIo(
-                            position = Int2(oldInterStepOffset + it.beltIndex, 1),
+                            position = Int2(oldInterStepOffset + it.position.x, 1),
                             type = BeltIoType.INPUT,
                             beltSide = it.beltSide,
                             item = it.item)
@@ -34,35 +34,31 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) : Layout 
             }
         }
 
-    val outputs: List<PositionalBeltIo>
+    override val outputs: List<PositionalBeltIo>
         get() {
             var interStepOffset = 0
 
             return assemblingMachineLineLayouts.map {
                 interStepOffset += it.width
 
+                assert(it.outputs.size == 1)
+
                 PositionalBeltIo(
                         position = Int2(interStepOffset - 1, 1),
                         type = BeltIoType.OUTPUT,
-                        beltSide = it.output.beltSide,
-                        item = it.output.item)
+                        beltSide = it.outputs[0].beltSide,
+                        item = it.outputs[0].item)
             }
         }
 
-    fun generateBlueprint(): Blueprint {
+    override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
 
-        var x = 0
+        var currentMaxX = 0
 
         for (subPrint in assemblingMachineLineLayouts.map { it.generateBlueprint() }) {
-            blueprint.addBlueprint(subPrint, x, 0)
-            x += subPrint.width
-        }
-
-        if (!(blueprint.width == width && blueprint.height == height)) {
-            throw RuntimeException("Blueprint generation failed!\n" +
-                    "Blueprint is ${blueprint.width}/${blueprint.height} but should be $width/$height\n\n" +
-                    blueprint.visualizer().visualize())
+            blueprint.addBlueprint(subPrint, currentMaxX - subPrint.minimumX, 0)
+            currentMaxX = blueprint.maximumX + 1
         }
 
         return blueprint

@@ -15,8 +15,9 @@ enum class BeltIoType {
     OUTPUT
 }
 
-data class IndexedBeltIo(val beltIndex: Int, val type: BeltIoType, val beltSide: BeltSide, val item: String)
-
+/**
+ * position is always exactly where the first/last belt is
+ */
 data class PositionalBeltIo(val position: Int2, val type: BeltIoType, val beltSide: BeltSide, val item: String,
                             val direction: Direction = when (type) {
                                 INPUT -> UP

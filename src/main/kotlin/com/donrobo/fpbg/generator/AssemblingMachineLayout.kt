@@ -9,7 +9,7 @@ import com.donrobo.fpbg.data.*
  * One assembling machine
  */
 class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Double) : Layout {
-    val width: Int
+    override val width: Int
         get() {
             val inputBelts = if (doubleInputBelts) 2 else 1
             val outputBelts = 1
@@ -19,15 +19,15 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
             return assemblingMachineWidth + inserterCount + inputBelts + outputBelts
         }
 
-    val height = 3
+    override val height = 3
 
-    val inputs: List<IndexedBeltIo>
+    override val inputs: List<PositionalBeltIo>
         get() {
-            val list = ArrayList<IndexedBeltIo>()
+            val list = ArrayList<PositionalBeltIo>()
 
             recipe.ingredients.indices.mapTo(list) { index ->
-                IndexedBeltIo(item = recipe.ingredients[index].item.name,
-                        beltIndex = index / 2,
+                PositionalBeltIo(item = recipe.ingredients[index].item.name,
+                        position = Int2(if (recipe.ingredients.size > 2) 1 - index / 2 else index / 2, 0),
                         beltSide = if (index + 1 == recipe.ingredients.size && index % 2 == 0) BeltSide.BOTH else if (index % 2 == 0) BeltSide.LEFT else BeltSide.RIGHT,
                         type = BeltIoType.INPUT)
             }
@@ -35,7 +35,13 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
             return list
         }
 
-    val output = IndexedBeltIo(beltIndex = 0, type = BeltIoType.OUTPUT, beltSide = BeltSide.RIGHT, item = recipe.result.item.name)
+    override val outputs = listOf(
+            PositionalBeltIo(position = Int2(width - 1, 0),
+                    type = BeltIoType.OUTPUT,
+                    direction = DOWN,
+                    beltSide = BeltSide.RIGHT,
+                    item = recipe.result.item.name)
+    )
 
     val assemblingMachineType: AssemblingMachine get() {
         val targetedCraftingSpeed = maxResultsPerSecond / recipe.result.count
@@ -57,7 +63,7 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
 
     val doubleInputBelts = inputs.size > 2
 
-    fun generateBlueprint(): Blueprint {
+    override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
 
         val beltOffset = if (doubleInputBelts) 2 else 1
@@ -77,7 +83,7 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
         blueprint.addBuilding(when (assemblingMachineType) {
             AssemblingMachine.ASSEMBLING_MACHINE_1 -> AssemblingMachine1(recipe.name, beltOffset + 1, -2)
             AssemblingMachine.ASSEMBLING_MACHINE_2 -> AssemblingMachine2(recipe.name, beltOffset + 1, -2)
-            AssemblingMachine.ASSEMBLING_MACHINE_3 -> AssemblingMachine2(recipe.name, beltOffset + 1, -2) //TODO am3
+            AssemblingMachine.ASSEMBLING_MACHINE_3 -> AssemblingMachine2(recipe.name, beltOffset + 1, -2) //TODO Assembling Machine 3
         })
 
         if (!(blueprint.width == width && blueprint.height == height)) {
