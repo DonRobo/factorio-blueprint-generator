@@ -10,15 +10,6 @@ import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
-fun oneToManyLayout(item: String, count: Int, x: Int, y: Int, direction: Direction): PositionalLayout {
-    val chosenLayout = buildCombinationLayout(item, x, y, direction, count)
-
-    assert(chosenLayout.outputs.size == count)
-    assert(chosenLayout.outputs.all { it.item == item })
-
-    return chosenLayout
-}
-
 class OneToThreeLayout(val item: String, override val x: Int, override val y: Int, val direction: Direction) : PositionalLayout {
 
     private val Direction.rotationOffset: Int get() = when (this) {

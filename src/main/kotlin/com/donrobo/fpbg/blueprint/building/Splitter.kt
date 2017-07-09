@@ -21,7 +21,12 @@ class Splitter(x: Int, y: Int, val direction: Direction) : AbstractBuilding(x, y
         get() = "splitter"
 
     override val visualizationCharacter: Char
-        get() = 'S'
+        get() = 'S'/*when(direction){
+            Direction.UP -> '⇑'
+            Direction.DOWN -> '⇓'
+            Direction.LEFT -> '⇐'
+            Direction.RIGHT -> '⇒'
+        }*/
 
     override val blueprintXOffset: Double
         get() = if (direction === UP || direction === DOWN) 0.5 else 0.0

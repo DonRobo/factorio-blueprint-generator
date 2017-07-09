@@ -2,12 +2,13 @@ package com.donrobo.fpbg.generator.layout
 
 import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.blueprint.Direction
+import com.donrobo.fpbg.blueprint.Direction.*
 import com.donrobo.fpbg.blueprint.move
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
 fun buildCombinationLayout(item: String, x: Int, y: Int, direction: Direction, outputCount: Int): CombinationLayout {
-    val combinationLayout = CombinationLayout()
+    val combinationLayout = CombinationLayout(item)
     if (outputCount == 1) {
         combinationLayout.internalLayouts.add(SingleBeltLayout(item, x, y, direction))
     } else {
@@ -17,33 +18,34 @@ fun buildCombinationLayout(item: String, x: Int, y: Int, direction: Direction, o
     while (combinationLayout.outputs.size < outputCount) {
         val sortedOutputs = ArrayList(combinationLayout.expandableOutputs.sortedBy { it.position.manhattanDistance(Int2(x, y)) })
 
-        val rightOkay: (PositionalBeltIo) -> Boolean = {
-            !combinationLayout.isOccupied(it.position.move(it.direction.rotateCW(1)))
-        }
-        val leftOkay: (PositionalBeltIo) -> Boolean = {
-            !combinationLayout.isOccupied(it.position.move(it.direction.rotateCW(3)))
-        }
-        val chosenOutput = sortedOutputs.first { leftOkay(it) || rightOkay(it) }
+        val chosenOutput = sortedOutputs.first()
 
-        val startPosition = chosenOutput.position.move(chosenOutput.direction)
-        val rightHanded = rightOkay(chosenOutput)
-        combinationLayout.internalLayouts.add(OneToTwoLayout(item, startPosition.x - if (rightHanded) 0 else 1, startPosition.y, chosenOutput.direction, rightHanded = rightHanded))
+        val rightHanded = chosenOutput in combinationLayout.rightExpandableOutputs
+        val startPosition = chosenOutput.position.move(chosenOutput.direction).move(chosenOutput.direction.rotateCW(3), if (rightHanded) 0 else 1)
+        combinationLayout.internalLayouts.add(OneToTwoLayout(item, startPosition.x, startPosition.y, chosenOutput.direction, rightHanded = rightHanded))
     }
 
     assert(combinationLayout.inputs.size == 1)
     assert(combinationLayout.outputs.size == outputCount)
-    assert(combinationLayout.outputs.none { combinationLayout.isOccupied(it.position.move(it.direction)) })
+    assert(combinationLayout.outputs.none { combinationLayout.generateBlueprint().isOccupied(it.position.move(it.direction)) })
 
     return combinationLayout
 }
 
-class CombinationLayout(val internalLayouts: MutableList<PositionalLayout> = ArrayList()) : PositionalLayout {
+class CombinationLayout(val item: String, val internalLayouts: MutableList<PositionalLayout> = ArrayList()) : PositionalLayout {
 
+    private val origin: PositionalBeltIo
+        get() = if (inputs.size == 1)
+            inputs.single()
+        else internalLayouts.firstOrNull { it.outputs.size == 1 }?.outputs?.single() ?:
+                TODO()
+
+    val direction: Direction get() = origin.direction
     override val x: Int
-        get() = inputs.single().position.x
+        get() = origin.position.x
 
     override val y: Int
-        get() = inputs.single().position.y
+        get() = origin.position.y
 
     val minimumX: Int
         get() = allOutputs.map { it.position.x }.min() ?: 0
@@ -76,22 +78,32 @@ class CombinationLayout(val internalLayouts: MutableList<PositionalLayout> = Arr
         get() = allOutputs.filterNot { ao -> ao.position.move(ao.direction) in allInputs.map { it.position } }
 
     val growingY: Boolean
-        get() = when (inputs.single().direction) {
-            Direction.UP, Direction.DOWN -> true
-            Direction.RIGHT, Direction.LEFT -> false
+        get() = when (origin.direction) {
+            UP, DOWN -> true
+            RIGHT, LEFT -> false
+        }
+
+    val leftExpandableOutputs: List<PositionalBeltIo>
+        get() = when (direction) {
+            UP -> outputs.filter { it.position.x == minimumX }
+            RIGHT -> outputs.filter { it.position.y == minimumY }
+            DOWN -> outputs.filter { it.position.x == maximumX }
+            LEFT -> outputs.filter { it.position.y == maximumY }
+        }
+
+    val rightExpandableOutputs: List<PositionalBeltIo>
+        get() = when (direction) {
+            UP -> outputs.filter { it.position.x == maximumX }
+            RIGHT -> outputs.filter { it.position.y == maximumY }
+            DOWN -> outputs.filter { it.position.x == minimumX }
+            LEFT -> outputs.filter { it.position.y == minimumY }
         }
 
     val expandableOutputs: List<PositionalBeltIo>
-        get() = if (growingY)
-            outputs.filter { it.position.x == maximumX || it.position.x == minimumX }
-        else
-            outputs.filter { it.position.y == maximumY || it.position.y == minimumY }
+        get() = leftExpandableOutputs + rightExpandableOutputs
 
     override fun generateBlueprint(): Blueprint {
         return Blueprint().apply { internalLayouts.forEach { internal -> addBlueprint(internal.generateBlueprint()) } }
     }
 
-    fun isOccupied(position: Int2): Boolean = internalLayouts.any { it.isInside(position) }
 }
-
-private fun PositionalLayout.isInside(position: Int2): Boolean = position.x >= x && position.x < x + width && position.y >= y && position.y < y + height
