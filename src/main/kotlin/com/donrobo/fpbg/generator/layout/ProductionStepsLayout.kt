@@ -11,7 +11,16 @@ import com.donrobo.fpbg.planner.ProductionStep
  */
 class ProductionStepsLayout(val productionSteps: List<ProductionStep>) : Layout {
 
-    val assemblingMachineLineLayouts = productionSteps.map { FullBeltWrapperLayout(AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count)) }
+    val assemblingMachineLineLayouts: List<Layout> = productionSteps
+            .map {
+                buildCombinationLayout(
+                        item = it.recipe.result.item.name,
+                        layoutToExtend = FullBeltWrapperLayout(AssemblingMachineLineLayout(it.recipe, it.resultPerSecond.count)),
+                        outputCount = ingredientCounts[it.recipe.result.item.name] ?: 1)
+            }
+
+    private val ingredientCounts: Map<String, Int>
+        get() = productionSteps.flatMap { it.ingredientsPerSecond.map { it.item.name } }.groupingBy { it }.eachCount()
 
     override val width = generateBlueprint().width
 
@@ -38,16 +47,17 @@ class ProductionStepsLayout(val productionSteps: List<ProductionStep>) : Layout 
         get() {
             var interStepOffset = 0
 
-            return assemblingMachineLineLayouts.map {
+            return assemblingMachineLineLayouts.flatMap {
+                val oldInterStepOffset = interStepOffset
                 interStepOffset += it.width
 
-                assert(it.outputs.size == 1)
-
-                PositionalBeltIo(
-                        position = Int2(interStepOffset - 1, 1),
-                        type = BeltIoType.OUTPUT,
-                        beltSide = it.outputs[0].beltSide,
-                        item = it.outputs[0].item)
+                it.outputs.map {
+                    PositionalBeltIo(
+                            position = it.position + Int2(oldInterStepOffset, 0),
+                            type = BeltIoType.OUTPUT,
+                            beltSide = it.beltSide,
+                            item = it.item)
+                }
             }
         }
 
