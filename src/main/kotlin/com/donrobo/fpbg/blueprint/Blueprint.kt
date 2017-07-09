@@ -79,7 +79,7 @@ class Blueprint {
         return building
     }
 
-    fun addBlueprint(blueprint: Blueprint, xOffset: Int, yOffset: Int) {
+    fun addBlueprint(blueprint: Blueprint, xOffset: Int = 0, yOffset: Int = 0) {
         blueprint.buildings.map { b -> b.move(xOffset, yOffset) }.forEach { this.addBuilding(it) }
     }
 
@@ -95,13 +95,13 @@ class Blueprint {
         get() = buildings.map { it.x }.min() ?: 0
 
     val maximumX: Int
-        get() = buildings.map { it.x }.max() ?: 0
+        get() = buildings.map { it.x + it.width - 1 }.max() ?: 0
 
     val minimumY: Int
         get() = buildings.map { it.y }.min() ?: 0
 
     val maximumY: Int
-        get() = buildings.map { it.y }.max() ?: 0
+        get() = buildings.map { it.y + it.height - 1 }.max() ?: 0
 
     val width: Int
         get() = maximumX - minimumX + 1//1-1 is still one width

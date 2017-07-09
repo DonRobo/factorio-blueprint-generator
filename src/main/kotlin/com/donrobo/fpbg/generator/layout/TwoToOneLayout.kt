@@ -1,4 +1,4 @@
-package com.donrobo.fpbg.generator
+package com.donrobo.fpbg.generator.layout
 
 import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.blueprint.Direction
@@ -24,20 +24,20 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
 
     override val inputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
-                    position = Int2(-1, 2).rotateCW(count = direction.rotationOffset),
+                    position = Int2(-1, 2),
                     item = item2,
                     beltSide = BeltSide.BOTH,
-                    direction = UP.rotateCW(direction.rotationOffset),
+                    direction = UP,
                     type = BeltIoType.INPUT
             ),
             PositionalBeltIo(
-                    position = Int2(0, 2).rotateCW(count = direction.rotationOffset),
+                    position = Int2(0, 2),
                     item = item1,
                     beltSide = BeltSide.BOTH,
-                    direction = UP.rotateCW(direction.rotationOffset),
+                    direction = UP,
                     type = BeltIoType.INPUT
             )
-    )
+    ).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
 
 
     override val outputs: List<PositionalBeltIo> get() = listOf(
@@ -45,17 +45,17 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
                     position = Int2(0, 0),
                     item = item2,
                     beltSide = BeltSide.LEFT,
-                    direction = UP.rotateCW(direction.rotationOffset),
+                    direction = UP,
                     type = BeltIoType.OUTPUT
             ),
             PositionalBeltIo(
                     position = Int2(0, 0),
                     item = item1,
                     beltSide = BeltSide.RIGHT,
-                    direction = UP.rotateCW(direction.rotationOffset),
+                    direction = UP,
                     type = BeltIoType.OUTPUT
             )
-    )
+    ).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
 
     override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()

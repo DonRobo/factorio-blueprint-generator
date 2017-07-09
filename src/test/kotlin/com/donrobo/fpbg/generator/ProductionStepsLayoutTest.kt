@@ -4,6 +4,7 @@ import com.donrobo.fpbg.data.BeltIoType
 import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
+import com.donrobo.fpbg.generator.layout.ProductionStepsLayout
 import com.donrobo.fpbg.planner.ProductionStep
 import com.donrobo.fpbg.test.ProductionStepGenerator
 import io.kotlintest.matchers.shouldBe

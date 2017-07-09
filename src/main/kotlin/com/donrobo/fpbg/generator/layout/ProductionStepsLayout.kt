@@ -1,4 +1,4 @@
-package com.donrobo.fpbg.generator
+package com.donrobo.fpbg.generator.layout
 
 import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.data.BeltIoType

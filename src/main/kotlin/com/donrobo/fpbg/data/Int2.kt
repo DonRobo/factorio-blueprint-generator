@@ -35,4 +35,5 @@ data class Int2(val x: Int, val y: Int) {
     fun manhattanDistance(position: Int2): Int {
         return Math.abs(position.x - x) + Math.abs(position.y - y)
     }
+
 }

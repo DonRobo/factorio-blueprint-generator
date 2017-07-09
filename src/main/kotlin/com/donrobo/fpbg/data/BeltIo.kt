@@ -22,4 +22,15 @@ data class PositionalBeltIo(val position: Int2, val type: BeltIoType, val beltSi
                             val direction: Direction = when (type) {
                                 INPUT -> UP
                                 OUTPUT -> DOWN
-                            })
+                            }) {
+    fun rotateCW(around: Int2 = Int2(0, 0), count: Int): PositionalBeltIo {
+        return PositionalBeltIo(
+                position = position.rotateCW(around, count),
+                direction = direction.rotateCW(count),
+                type = type,
+                item = item,
+                beltSide = beltSide
+        )
+    }
+
+}

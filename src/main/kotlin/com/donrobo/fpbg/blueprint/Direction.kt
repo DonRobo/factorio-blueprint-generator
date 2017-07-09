@@ -64,3 +64,7 @@ enum class Direction(val directionValue: Int) {
         }
     }
 }
+
+fun Int2.move(direction: Direction, distance: Int = 1): Int2 {
+    return direction.move(this, distance)
+}
