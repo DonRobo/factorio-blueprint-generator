@@ -19,7 +19,9 @@ fun main(args: Array<String>) {
     val productionLinePlanner = ProductionLinePlanner(recipes)
 
     val productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
-            FractionalItemStack(1.0, Item("transport-belt"))//,
+            FractionalItemStack(1.0, Item("transport-belt")),
+            FractionalItemStack(1.0, Item("inserter"))
+//            FractionalItemStack(1.0, Item("fast-inserter"))
 //            FractionalItemStack(1.0, Item("splitter")),
 //            FractionalItemStack(1.0, Item("underground-belt")),
 //            FractionalItemStack(1.0, Item("fast-transport-belt")),

@@ -19,7 +19,7 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
             return assemblingMachineWidth + inserterCount + inputBelts + outputBelts
         }
 
-    override val height = 3
+    override val height get() = 3
 
     override val inputs: List<PositionalBeltIo>
         get() {
@@ -35,11 +35,11 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
             return list
         }
 
-    override val outputs = listOf(
+    override val outputs get() = listOf(
             PositionalBeltIo(position = Int2(width - 1, 0),
                     type = BeltIoType.OUTPUT,
                     direction = DOWN,
-                    beltSide = BeltSide.RIGHT,
+                    beltSide = BeltSide.LEFT,
                     item = recipe.result.item.name)
     )
 
@@ -59,9 +59,9 @@ class AssemblingMachineLayout(val recipe: Recipe, val maxResultsPerSecond: Doubl
             return assemblingMachineType.craftingSpeed
         }
 
-    val resultsPerSecond = craftingSpeed * recipe.result.count
+    val resultsPerSecond get() = craftingSpeed * recipe.result.count
 
-    val doubleInputBelts = inputs.size > 2
+    val doubleInputBelts get() = inputs.size > 2
 
     override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()

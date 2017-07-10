@@ -8,6 +8,7 @@ import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.blueprint.move
 import com.donrobo.fpbg.data.BeltSide
 import com.donrobo.fpbg.generator.layout.ProductionStepsLayout
+import com.donrobo.fpbg.generator.layout.RawInputLayout
 import com.donrobo.fpbg.planner.ProductionLine
 
 class ProductionLineGenerator(val productionLine: ProductionLine) {
@@ -24,21 +25,22 @@ class ProductionLineGenerator(val productionLine: ProductionLine) {
                 .filterNot { i -> i.item in producedItems }
                 .map { it.item }.groupingBy { it }.eachCount()
 
-        val unusedOutputs = ArrayList(stepsLayout.outputs)
+        val rawInputLayout = RawInputLayout(requiredRawItems)
+        blueprint.addBlueprint(rawInputLayout.generateBlueprint())
+
+        val unusedOutputs = ArrayList(stepsLayout.outputs + rawInputLayout.outputs)
 
         stepsLayout.inputs.forEach { input ->
-            val usedOutput = unusedOutputs.filter { it.item == input.item }.sortedBy { it.position.manhattanDistance(input.position) }.firstOrNull()
-            if (usedOutput != null) {
-                unusedOutputs.remove(usedOutput)
+            val usedOutput = unusedOutputs.filter { it.item == input.item }.sortedBy { it.position.manhattanDistance(input.position) }.first()
+            unusedOutputs.remove(usedOutput)
 
-                val start = DirectionalInt2(usedOutput.position.move(usedOutput.direction), usedOutput.direction)
-                val end = DirectionalInt2(input.position.move(input.direction.reversed), input.direction)
+            val start = DirectionalInt2(usedOutput.position.move(usedOutput.direction), usedOutput.direction)
+            val end = DirectionalInt2(input.position.move(input.direction.reversed), input.direction)
 
-                pathsToGenerate.add(Pair(start, end))
-            }
+            pathsToGenerate.add(Pair(start, end))
         }
 
-        BeltLayer.layBelts(blueprint, pathsToGenerate, { it.pos.x > ProductionLine.materialInputsOffset })
+        BeltLayer.layBelts(blueprint, pathsToGenerate)
 
         return blueprint
     }

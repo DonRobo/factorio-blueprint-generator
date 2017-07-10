@@ -11,22 +11,27 @@ enum class NodeType {
 }
 
 data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?, val type: NodeType) {
-    val f: Int get() = g + h
+    val f: Int get() = g + h + b
     val g: Int get() = when (type) {
         NodeType.BELT -> 10
         NodeType.UNDERGROUND_BELT_START -> 30
         NodeType.UNDERGROUND_BELT_END -> 30
     } + (parent?.g ?: 0)
     val h: Int get() = Math.abs(target.x - pos.x) * 10 + Math.abs(target.y - pos.y) * 10
-    fun visualizer(blueprint: Blueprint): MapVisualizer {
-        val visualizer = parent?.visualizer(blueprint) ?: blueprint.visualizer()
+    val b: Int get() = if (parent != null && parent.parent != null && direction != parent.direction) 1 else 0
+    fun visualizer(blueprint: Blueprint, closed: List<AStarNode> = emptyList(), open: List<AStarNode> = emptyList()): MapVisualizer {
+        val visualizer = parent?.visualizer(blueprint, closed, open) ?: blueprint.visualizer().apply {
+            closed.map { it.pos }.forEach { set(it, 'x') }
+        }.apply {
+            open.map { it.pos }.forEach { set(it, '_') }
+        }
 
         visualizer[pos] = 'o'
 
         return visualizer
     }
 
-    val direction: Direction get() = if (parent != null) Direction.calculateDirection(parent.pos, pos) else TODO("Default direction?")
+    val direction: Direction get() = if (parent != null) Direction.calculateDirection(parent.pos, pos) else Direction.DOWN
 }
 
 data class DirectionalInt2(val pos: Int2, val direction: Direction) {
@@ -121,14 +126,13 @@ object BeltLayer {
                     }
                 }
                 NodeType.UNDERGROUND_BELT_END -> if (current.parent != null) {
-                    val adj = current.direction.move(current.pos)
-                    val node = AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT)
-                    addIfValid(node, open, closed, blueprint, *limitations)
+                    val adj = current.pos.move(current.direction)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT), open, closed, blueprint, *limitations)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_START), open, closed, blueprint, *limitations)
                 }
                 NodeType.BELT -> listOf(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT).forEach { dir ->
                     val adj = dir.move(current.pos)
-                    val node = AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT)
-                    addIfValid(node, open, closed, blueprint, *limitations)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT), open, closed, blueprint, *limitations)
                     addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_START), open, closed, blueprint, *limitations)
                 }
             }
@@ -148,14 +152,7 @@ object BeltLayer {
         if (limitations.any { limitation -> !limitation(node) }) return
         if (node.type == NodeType.UNDERGROUND_BELT_END && node.parent?.type != NodeType.UNDERGROUND_BELT_START) return
 
-        val existing = open.filter { it.pos == node.pos && it.type == node.type }.minBy { it.f }
-        if (existing != null) {
-            if (existing.f < node.f)
-                return
-            else if (existing.f > node.f)
-                open.remove(existing)
-        }
-        if (closed.find { it.pos == node.pos && it.type == node.type } != null)
+        if (closed.find { it.pos == node.pos && it.type == node.type && it.direction == node.direction } != null)
             return
 
         if (blueprint.isOccupied(node.pos)) {
@@ -167,6 +164,25 @@ object BeltLayer {
             when (buildingLookedAt) {
                 is YellowBelt -> if (buildingLookedAt.direction.reversed == dir) return
                 is UndergroundBelt -> if (buildingLookedAt.isOutput && buildingLookedAt.direction.reversed == dir) return
+            }
+        }
+
+        var parent = node.parent
+        while (parent != null) {
+            if (node.pos == parent.pos)
+                return
+            parent = parent.parent
+        }
+
+        if (node.type == NodeType.UNDERGROUND_BELT_END) {
+            if (node.parent == null) return
+
+            var lookAt = node.parent.pos.move(node.direction)
+            while (lookAt != node.pos) {
+                if (blueprint.get(lookAt) is UndergroundBelt) {
+                    return
+                }
+                lookAt = lookAt.move(node.direction)
             }
         }
 

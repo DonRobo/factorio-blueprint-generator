@@ -3,7 +3,6 @@ package com.donrobo.fpbg.generator.layout
 import com.donrobo.fpbg.blueprint.Blueprint
 import com.donrobo.fpbg.blueprint.Direction
 import com.donrobo.fpbg.blueprint.Direction.*
-import com.donrobo.fpbg.blueprint.building.Splitter
 import com.donrobo.fpbg.blueprint.toBeltBlueprint
 import com.donrobo.fpbg.data.BeltIoType
 import com.donrobo.fpbg.data.BeltSide
@@ -19,19 +18,19 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
         LEFT -> 3
     }
 
-    override val width: Int = 3
-    override val height: Int = 3
+    override val width: Int get() = generateBlueprint().width
+    override val height: Int get() = generateBlueprint().height
 
     override val inputs: List<PositionalBeltIo> get() = listOf(
             PositionalBeltIo(
-                    position = Int2(-1, 2),
+                    position = Int2(-1, 1),
                     item = item2,
                     beltSide = BeltSide.BOTH,
                     direction = UP,
                     type = BeltIoType.INPUT
             ),
             PositionalBeltIo(
-                    position = Int2(0, 2),
+                    position = Int2(0, 1),
                     item = item1,
                     beltSide = BeltSide.BOTH,
                     direction = UP,
@@ -63,11 +62,9 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
         /*
          * >^<
          * ^>^
-         * SS
          */
         blueprint.addBlueprint(">^<".toBeltBlueprint(), -1, 0)
         blueprint.addBlueprint("^>^".toBeltBlueprint(), -1, 1)
-        blueprint.addBuilding(Splitter(-1, 2, UP))
 
         return when (direction) {
             UP -> blueprint

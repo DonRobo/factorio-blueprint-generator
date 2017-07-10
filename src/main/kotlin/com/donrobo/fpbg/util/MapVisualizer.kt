@@ -39,10 +39,15 @@ class MapVisualizer {
 
         val coordinateSize = 4
 
-        for (y in minimumY..maximumY) {
+        val maximumYToUse = maximumY + if (showCoordinates) coordinateSize else 0
+        for (y in minimumY..maximumYToUse) {
             val minimumXToUse = if (showCoordinates) minimumX - coordinateSize else minimumX
             for (x in minimumXToUse..maximumX) {
-                if (x < minimumX)
+                if (y > maximumY && x < minimumX)
+                    stringBuilder.append(' ')
+                else if (y > maximumY)
+                    stringBuilder.append(x.toString().padEnd(coordinateSize, ' ')[y - maximumY - 1])
+                else if (x < minimumX)
                     stringBuilder.append(y.toString().padStart(coordinateSize, ' ')[coordinateSize - (minimumX - x)])
                 else
                     stringBuilder.append(map[Int2(x, y)] ?: ' ')

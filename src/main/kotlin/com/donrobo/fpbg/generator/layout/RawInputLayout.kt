@@ -1,24 +1,36 @@
 package com.donrobo.fpbg.generator.layout
 
 import com.donrobo.fpbg.blueprint.Blueprint
+import com.donrobo.fpbg.blueprint.Direction
+import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
 class RawInputLayout(requiredItems: Map<String, Int>) : Layout {
-    init {
+    private val internalBlueprint: Blueprint = Blueprint()
+    override val inputs: List<PositionalBeltIo>
+    override val outputs: List<PositionalBeltIo>
 
+    init {
+        inputs = ArrayList()
+        outputs = ArrayList()
+
+        requiredItems.forEach { (itemName, itemCount) ->
+            val combinationLayout = buildCombinationLayout(itemName, 0, 0, Direction.RIGHT, itemCount)
+            val combinationBlueprint = combinationLayout.generateBlueprint()
+            val yOffset = internalBlueprint.maximumY + 2 - combinationBlueprint.minimumY
+            internalBlueprint.addBlueprint(combinationBlueprint, 0, yOffset)
+            inputs.addAll(combinationLayout.inputs.map { it.move(Int2(0, yOffset)) })
+            outputs.addAll(combinationLayout.outputs.map { it.move(Int2(0, yOffset)) })
+        }
     }
 
     override val width: Int
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = internalBlueprint.width
     override val height: Int
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val inputs: List<PositionalBeltIo>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val outputs: List<PositionalBeltIo>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = internalBlueprint.height
 
     override fun generateBlueprint(): Blueprint {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return internalBlueprint
     }
 
 }

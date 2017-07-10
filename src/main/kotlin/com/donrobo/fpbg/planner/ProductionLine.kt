@@ -1,7 +1,6 @@
 package com.donrobo.fpbg.planner
 
-import com.donrobo.fpbg.blueprint.Direction
-import com.donrobo.fpbg.data.*
+import com.donrobo.fpbg.data.Item
 import java.util.*
 
 class ProductionLine {
@@ -42,17 +41,6 @@ class ProductionLine {
 
     val allIngredients: List<String> get() = productionSteps.flatMap { it.ingredientsPerSecond.map { it.item.name } }.distinct()
 
-    val materialInputs: List<PositionalBeltIo> get() {
-        return inputMaterials.mapIndexed { index, item ->
-            PositionalBeltIo(position = Int2(materialInputsOffset, index * 2 + 2), type = BeltIoType.OUTPUT, item = item, beltSide = BeltSide.BOTH, direction = Direction.RIGHT)
-        }
-    }
-
     fun getProductionStepsThatRequire(input: String): List<ProductionStep> = productionSteps.filter { it.requires(input) }
-
-
-    companion object {
-        val materialInputsOffset: Int = -2
-    }
 
 }
