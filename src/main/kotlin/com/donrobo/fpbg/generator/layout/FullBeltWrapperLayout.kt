@@ -22,7 +22,7 @@ class FullBeltWrapperLayout(internalLayout: Layout) : Layout {
         internalBlueprint.addBlueprint(internalLayout.generateBlueprint(), 0, 0)
 
         val inputs = ArrayList<PositionalBeltIo>()
-        val outputs = ArrayList<PositionalBeltIo>(internalLayout.outputs) //TODO überlegen
+        val outputs = ArrayList<PositionalBeltIo>(internalLayout.outputs)
 
         val inputsToAnalyze = ArrayList(internalLayout.inputs)
         while (inputsToAnalyze.isNotEmpty()) {

@@ -37,7 +37,7 @@ class OneToThreeLayout(val item: String, override val x: Int, override val y: In
                 item = item,
                 type = BeltIoType.INPUT,
                 direction = UP
-        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
+        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset).move(Int2(x, y)) }
 
     override val outputs: List<PositionalBeltIo>
         get() = listOf(PositionalBeltIo(
@@ -58,7 +58,7 @@ class OneToThreeLayout(val item: String, override val x: Int, override val y: In
                 item = item,
                 type = BeltIoType.OUTPUT,
                 direction = UP
-        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
+        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset).move(Int2(x, y)) }
 
     override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()
@@ -137,7 +137,7 @@ class OneToTwoLayout(val item: String, override val x: Int, override val y: Int,
                 item = item,
                 type = BeltIoType.INPUT,
                 direction = UP
-        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
+        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset).move(Int2(x, y)) }
 
     override val outputs: List<PositionalBeltIo>
         get() = listOf(PositionalBeltIo(
@@ -152,7 +152,7 @@ class OneToTwoLayout(val item: String, override val x: Int, override val y: Int,
                 item = item,
                 type = BeltIoType.OUTPUT,
                 direction = UP
-        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
+        )).map { it.rotateCW(Int2(x, y), direction.rotationOffset).move(Int2(x, y)) }
 
     override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()

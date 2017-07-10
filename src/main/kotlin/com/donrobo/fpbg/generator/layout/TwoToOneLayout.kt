@@ -37,7 +37,7 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
                     direction = UP,
                     type = BeltIoType.INPUT
             )
-    ).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
+    ).map { it.rotateCW(Int2(x, y), direction.rotationOffset).move(Int2(x, y)) }
 
 
     override val outputs: List<PositionalBeltIo> get() = listOf(
@@ -55,7 +55,7 @@ class TwoToOneLayout(val direction: Direction, val item1: String, val item2: Str
                     direction = UP,
                     type = BeltIoType.OUTPUT
             )
-    ).map { it.rotateCW(Int2(x, y), direction.rotationOffset) }
+    ).map { it.rotateCW(Int2(x, y), direction.rotationOffset).move(Int2(x, y)) }
 
     override fun generateBlueprint(): Blueprint {
         val blueprint = Blueprint()

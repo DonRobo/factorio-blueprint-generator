@@ -32,14 +32,20 @@ class MapVisualizer {
         return map[pos]
     }
 
-    fun visualize(): String {
+    fun visualize(showCoordinates: Boolean = false): String {
         if (map.isEmpty()) return ""
 
         val stringBuilder = StringBuilder()
 
+        val coordinateSize = 4
+
         for (y in minimumY..maximumY) {
-            for (x in minimumX..maximumX) {
-                stringBuilder.append(map[Int2(x, y)] ?: ' ')
+            val minimumXToUse = if (showCoordinates) minimumX - coordinateSize else minimumX
+            for (x in minimumXToUse..maximumX) {
+                if (x < minimumX)
+                    stringBuilder.append(y.toString().padStart(coordinateSize, ' ')[coordinateSize - (minimumX - x)])
+                else
+                    stringBuilder.append(map[Int2(x, y)] ?: ' ')
             }
             stringBuilder.append("\n")
         }

@@ -156,8 +156,8 @@ class Blueprint {
         }
     }
 
-    fun visualize(): String {
-        return visualizer().visualize()
+    fun visualize(showCoordinates: Boolean = false): String {
+        return visualizer().visualize(showCoordinates)
     }
 
     fun rotateCW(around: Int2 = Int2(0, 0), count: Int): Blueprint {

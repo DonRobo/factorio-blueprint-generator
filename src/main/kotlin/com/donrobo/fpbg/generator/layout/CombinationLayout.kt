@@ -47,6 +47,12 @@ class CombinationLayout(val item: String, val internalLayouts: MutableList<Layou
 
     private val origin: PositionalBeltIo
         get() = internalLayouts.firstOrNull { it.outputs.size == 1 }?.outputs?.single() ?:
+                internalLayouts.firstOrNull { layout ->
+                    val inputDirection = layout.inputs.map { it.direction }.distinct().singleOrNull()
+                    val outputDirection = layout.outputs.map { it.direction }.distinct().singleOrNull()
+
+                    inputDirection != null && outputDirection != null && inputDirection == outputDirection
+                }?.inputs?.first() ?:
                 TODO()
 
     val direction: Direction get() = origin.direction

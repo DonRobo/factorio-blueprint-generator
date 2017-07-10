@@ -33,4 +33,12 @@ data class PositionalBeltIo(val position: Int2, val type: BeltIoType, val beltSi
         )
     }
 
+    fun move(offset: Int2) =
+            PositionalBeltIo(
+                    position = position + offset,
+                    direction = direction,
+                    item = item,
+                    beltSide = beltSide,
+                    type = type
+            )
 }
