@@ -10,15 +10,23 @@ enum class NodeType {
     BELT, UNDERGROUND_BELT_START, UNDERGROUND_BELT_END
 }
 
-data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?, val type: NodeType) {
-    val f: Int get() = g + h + b
+data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?, val type: NodeType, val blueprint: Blueprint) {
+    val f: Int get() = g + h
     val g: Int get() = when (type) {
         NodeType.BELT -> 10
         NodeType.UNDERGROUND_BELT_START -> 30
         NodeType.UNDERGROUND_BELT_END -> 30
-    } + (parent?.g ?: 0)
-    val h: Int get() = Math.abs(target.x - pos.x) * 10 + Math.abs(target.y - pos.y) * 10
-    val b: Int get() = if (parent != null && parent.parent != null && direction != parent.direction) 1 else 0
+    } + isCurved + blockedLeft + blockedRight + (parent?.g ?: 0)
+
+    val h: Int get() = Math.abs(target.x - pos.x) * 11 + Math.abs(target.y - pos.y) * 9
+
+    val isCurved: Int get() = if (parent != null && parent.parent != null && direction != parent.direction) 1 else 0
+    val blockedLeft: Int get() = if (blueprint.isOccupied(leftPos)) 3 else 0
+    val blockedRight: Int get() = if (blueprint.isOccupied(rightPos)) 3 else 0
+
+    private val leftPos: Int2 get() = pos.move(direction.rotateCW(3))
+    private val rightPos: Int2 get() = pos.move(direction.rotateCW(1))
+
     fun visualizer(blueprint: Blueprint, closed: List<AStarNode> = emptyList(), open: List<AStarNode> = emptyList()): MapVisualizer {
         val visualizer = parent?.visualizer(blueprint, closed, open) ?: blueprint.visualizer().apply {
             closed.map { it.pos }.forEach { set(it, 'x') }
@@ -45,7 +53,7 @@ typealias BeltLayerLimitation = (AStarNode) -> Boolean
 object BeltLayer {
 
     fun layBelts(blueprint: Blueprint, paths: List<Pair<DirectionalInt2, DirectionalInt2>>, vararg limitations: BeltLayerLimitation) {
-        paths.forEach { path ->
+        paths.sortedByDescending { it.second.pos.x }.forEach { path ->
             try {
                 val dontOverwriteStartOrEndLimitation: (AStarNode) -> Boolean = { node ->
                     val illegalPositions = ArrayList<Int2>()
@@ -70,6 +78,7 @@ object BeltLayer {
                     !illegalPositions.contains(node.pos)
                 }
                 layBelt(blueprint, Pair(path.first, path.second), *limitations, dontOverwriteStartOrEndLimitation)
+                println("Path done")
             } catch(t: Throwable) {
                 println(blueprint.visualizer().visualize())
                 throw t
@@ -84,7 +93,8 @@ object BeltLayer {
                 pos = path.second.direction.move(currentNode.pos),
                 type = NodeType.BELT,
                 target = path.second.pos,
-                parent = currentNode)))
+                parent = currentNode,
+                blueprint = blueprint)))
 
         while (currentNode.parent != null) {
             val parent = currentNode.parent ?: throw RuntimeException("Literally not possible")
@@ -105,7 +115,7 @@ object BeltLayer {
     }
 
     private fun generatePath(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
-        val open = mutableListOf(AStarNode(pos = path.first.pos, parent = null, target = path.second.pos, type = NodeType.BELT))
+        val open = mutableListOf(AStarNode(pos = path.first.pos, parent = null, target = path.second.pos, type = NodeType.BELT, blueprint = blueprint))
         val closed = mutableListOf<AStarNode>()
 
         while (!open.isEmpty()) {
@@ -121,19 +131,19 @@ object BeltLayer {
                 NodeType.UNDERGROUND_BELT_START -> for (i in 1..5) {
                     if (current.parent != null) {
                         val underEnd = current.direction.move(current.pos, i)
-                        val node = AStarNode(pos = underEnd, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_END)
+                        val node = AStarNode(pos = underEnd, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_END, blueprint = blueprint)
                         addIfValid(node, open, closed, blueprint, *limitations)
                     }
                 }
                 NodeType.UNDERGROUND_BELT_END -> if (current.parent != null) {
                     val adj = current.pos.move(current.direction)
-                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT), open, closed, blueprint, *limitations)
-                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_START), open, closed, blueprint, *limitations)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT, blueprint = blueprint), open, closed, blueprint, *limitations)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_START, blueprint = blueprint), open, closed, blueprint, *limitations)
                 }
                 NodeType.BELT -> listOf(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT).forEach { dir ->
                     val adj = dir.move(current.pos)
-                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT), open, closed, blueprint, *limitations)
-                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_START), open, closed, blueprint, *limitations)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.BELT, blueprint = blueprint), open, closed, blueprint, *limitations)
+                    addIfValid(AStarNode(pos = adj, parent = current, target = path.second.pos, type = NodeType.UNDERGROUND_BELT_START, blueprint = blueprint), open, closed, blueprint, *limitations)
                 }
             }
 
@@ -152,7 +162,15 @@ object BeltLayer {
         if (limitations.any { limitation -> !limitation(node) }) return
         if (node.type == NodeType.UNDERGROUND_BELT_END && node.parent?.type != NodeType.UNDERGROUND_BELT_START) return
 
-        if (closed.find { it.pos == node.pos && it.type == node.type && it.direction == node.direction } != null)
+
+        val isUndergroundBelt = node.type == NodeType.UNDERGROUND_BELT_START || node.type == NodeType.UNDERGROUND_BELT_END
+
+        if (closed.any {
+            it.pos == node.pos
+                    && it.type == node.type
+                    && (it.direction == node.direction || !isUndergroundBelt)
+                    && (it.direction.isSameAxis(node.direction) || isUndergroundBelt)
+        })
             return
 
         if (blueprint.isOccupied(node.pos)) {
@@ -179,7 +197,8 @@ object BeltLayer {
 
             var lookAt = node.parent.pos.move(node.direction)
             while (lookAt != node.pos) {
-                if (blueprint.get(lookAt) is UndergroundBelt) {
+                val building = blueprint.get(lookAt)
+                if (building is UndergroundBelt && node.direction.isSameAxis(building.direction)) {
                     return
                 }
                 lookAt = lookAt.move(node.direction)

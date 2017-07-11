@@ -20,13 +20,13 @@ fun main(args: Array<String>) {
 
     val productionLine = productionLinePlanner.getProductionLineFor(ProductionLinePlanner.getDefaultAllowedItems(),
             FractionalItemStack(1.0, Item("transport-belt")),
-            FractionalItemStack(1.0, Item("inserter"))
-//            FractionalItemStack(1.0, Item("fast-inserter"))
-//            FractionalItemStack(1.0, Item("splitter")),
-//            FractionalItemStack(1.0, Item("underground-belt")),
-//            FractionalItemStack(1.0, Item("fast-transport-belt")),
-//            FractionalItemStack(1.0, Item("fast-splitter")),
-//            FractionalItemStack(1.0, Item("fast-underground-belt"))
+            FractionalItemStack(1.0, Item("inserter")),
+            FractionalItemStack(1.0, Item("fast-inserter")),
+            FractionalItemStack(1.0, Item("splitter")),
+            FractionalItemStack(1.0, Item("underground-belt")),
+            FractionalItemStack(1.0, Item("fast-transport-belt")),
+            FractionalItemStack(1.0, Item("fast-splitter")),
+            FractionalItemStack(1.0, Item("fast-underground-belt"))
     )
     println(productionLine)
 

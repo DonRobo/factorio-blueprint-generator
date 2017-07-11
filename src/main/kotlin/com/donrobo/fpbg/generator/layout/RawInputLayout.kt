@@ -5,7 +5,7 @@ import com.donrobo.fpbg.blueprint.Direction
 import com.donrobo.fpbg.data.Int2
 import com.donrobo.fpbg.data.PositionalBeltIo
 
-class RawInputLayout(requiredItems: Map<String, Int>) : Layout {
+class RawInputLayout(requiredItems: Map<String, Int>, xOffset: Int) : Layout {
     private val internalBlueprint: Blueprint = Blueprint()
     override val inputs: List<PositionalBeltIo>
     override val outputs: List<PositionalBeltIo>
@@ -18,9 +18,9 @@ class RawInputLayout(requiredItems: Map<String, Int>) : Layout {
             val combinationLayout = buildCombinationLayout(itemName, 0, 0, Direction.RIGHT, itemCount)
             val combinationBlueprint = combinationLayout.generateBlueprint()
             val yOffset = internalBlueprint.maximumY + 2 - combinationBlueprint.minimumY
-            internalBlueprint.addBlueprint(combinationBlueprint, 0, yOffset)
-            inputs.addAll(combinationLayout.inputs.map { it.move(Int2(0, yOffset)) })
-            outputs.addAll(combinationLayout.outputs.map { it.move(Int2(0, yOffset)) })
+            internalBlueprint.addBlueprint(combinationBlueprint, xOffset, yOffset)
+            inputs.addAll(combinationLayout.inputs.map { it.move(Int2(xOffset, yOffset)) })
+            outputs.addAll(combinationLayout.outputs.map { it.move(Int2(xOffset, yOffset)) })
         }
     }
 

@@ -17,6 +17,11 @@ enum class Direction(val directionValue: Int) {
         else -> throw RuntimeException("New direction added?")
     }
 
+    fun isSameAxis(other: Direction) = when (this) {
+        UP, DOWN -> other == UP || other == DOWN
+        RIGHT, LEFT -> other == RIGHT || other == LEFT
+    }
+
     fun move(start: Int2, distance: Int = 1): Int2 {
         var actualX = start.x
         var actualY = start.y

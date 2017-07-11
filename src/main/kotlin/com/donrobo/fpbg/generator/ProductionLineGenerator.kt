@@ -25,12 +25,12 @@ class ProductionLineGenerator(val productionLine: ProductionLine) {
                 .filterNot { i -> i.item in producedItems }
                 .map { it.item }.groupingBy { it }.eachCount()
 
-        val rawInputLayout = RawInputLayout(requiredRawItems)
+        val rawInputLayout = RawInputLayout(requiredRawItems, -2 - (requiredRawItems.values.max() ?: 0))
         blueprint.addBlueprint(rawInputLayout.generateBlueprint())
 
         val unusedOutputs = ArrayList(stepsLayout.outputs + rawInputLayout.outputs)
 
-        stepsLayout.inputs.forEach { input ->
+        stepsLayout.inputs.sortedByDescending { it.position.x }.forEach { input ->
             val usedOutput = unusedOutputs.filter { it.item == input.item }.sortedBy { it.position.manhattanDistance(input.position) }.first()
             unusedOutputs.remove(usedOutput)
 
