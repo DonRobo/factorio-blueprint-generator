@@ -4,7 +4,8 @@ import com.donrobo.fpbg.blueprint.Direction.*
 import com.donrobo.fpbg.blueprint.building.Building
 import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.data.Int2
-import com.donrobo.fpbg.util.MapVisualizer
+import com.donrobo.fpbg.util.Map2D
+import com.donrobo.fpbg.util.asMap
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 import org.apache.commons.io.IOUtils
@@ -119,8 +120,8 @@ class Blueprint {
         return get(pos.x, pos.y)
     }
 
-    fun visualizer(): MapVisualizer {
-        val mapVisualizer = MapVisualizer()
+    fun visualizer(): Map2D {
+        val mapVisualizer = Map2D()
 
         for (building in buildings) {
             for (y in building.y..(building.y + building.height - 1)) {
@@ -172,20 +173,26 @@ class Blueprint {
 }
 
 fun String.toBeltBlueprint(): Blueprint {
+    return asMap().toBeltBlueprint()
+}
+
+fun Map2D.toBeltBlueprint(): Blueprint {
     val blueprint = Blueprint()
 
-    toCharArray().forEachIndexed { index, buildingChar ->
-        if (buildingChar != ' ')
-            blueprint.addBuilding(when (buildingChar) {
-                '^' -> YellowBelt(index, 0, UP)
-                '>' -> YellowBelt(index, 0, RIGHT)
-                'v' -> YellowBelt(index, 0, DOWN)
-                '<' -> YellowBelt(index, 0, LEFT)
-                else -> throw IllegalArgumentException("$buildingChar is not supported")
+    asMap().forEach { (pos, char) ->
+        if (char != ' ')
+            blueprint.addBuilding(when (char) {
+                '^' -> YellowBelt(pos.x, pos.y, UP)
+                '>' -> YellowBelt(pos.x, pos.y, RIGHT)
+                'v' -> YellowBelt(pos.x, pos.y, DOWN)
+                '<' -> YellowBelt(pos.x, pos.y, LEFT)
+                else -> throw IllegalArgumentException("$char is not supported")
             })
+
     }
 
-    if (!contains(' ')) assert(blueprint.width == length)
-    assert(blueprint.height == 1)
+    assert(width == blueprint.width)
+    assert(height == blueprint.height)
+
     return blueprint
 }

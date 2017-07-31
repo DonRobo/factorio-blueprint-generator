@@ -4,7 +4,7 @@ import com.donrobo.fpbg.blueprint.building.Building
 import com.donrobo.fpbg.blueprint.building.UndergroundBelt
 import com.donrobo.fpbg.blueprint.building.YellowBelt
 import com.donrobo.fpbg.data.Int2
-import com.donrobo.fpbg.util.MapVisualizer
+import com.donrobo.fpbg.util.Map2D
 
 enum class NodeType {
     BELT, UNDERGROUND_BELT_START, UNDERGROUND_BELT_END
@@ -27,7 +27,7 @@ data class AStarNode(val pos: Int2, val target: Int2, val parent: AStarNode?, va
     private val leftPos: Int2 get() = pos.move(direction.rotateCW(3))
     private val rightPos: Int2 get() = pos.move(direction.rotateCW(1))
 
-    fun visualizer(blueprint: Blueprint, closed: List<AStarNode> = emptyList(), open: List<AStarNode> = emptyList()): MapVisualizer {
+    fun visualizer(blueprint: Blueprint, closed: List<AStarNode> = emptyList(), open: List<AStarNode> = emptyList()): Map2D {
         val visualizer = parent?.visualizer(blueprint, closed, open) ?: blueprint.visualizer().apply {
             closed.map { it.pos }.forEach { set(it, 'x') }
         }.apply {
@@ -51,6 +51,13 @@ data class DirectionalInt2(val pos: Int2, val direction: Direction) {
 typealias BeltLayerLimitation = (AStarNode) -> Boolean
 
 object BeltLayer {
+
+    fun generatePaths(blueprint: Blueprint = Blueprint(), paths: List<Pair<DirectionalInt2, DirectionalInt2>>): List<AStarNode> {
+        val resultBlueprint = Blueprint()
+        resultBlueprint.addBlueprint(blueprint)
+
+        return paths.map { layBelt(resultBlueprint, it) }
+    }
 
     fun layBelts(blueprint: Blueprint, paths: List<Pair<DirectionalInt2, DirectionalInt2>>, vararg limitations: BeltLayerLimitation) {
         paths.sortedByDescending { it.second.pos.x }.forEach { path ->
@@ -86,8 +93,9 @@ object BeltLayer {
         }
     }
 
-    private fun layBelt(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation) {
-        var currentNode = generatePath(blueprint, path, *limitations)
+    private fun layBelt(blueprint: Blueprint, path: Pair<DirectionalInt2, DirectionalInt2>, vararg limitations: BeltLayerLimitation): AStarNode {
+        val pathNode = generatePath(blueprint, path, *limitations)
+        var currentNode = pathNode
 
         blueprint.addBuilding(generateBuildingFor(currentNode, AStarNode(
                 pos = path.second.direction.move(currentNode.pos),
@@ -102,7 +110,7 @@ object BeltLayer {
             blueprint.addBuilding(generateBuildingFor(parent, currentNode))
             currentNode = parent
         }
-        return
+        return pathNode
     }
 
     private fun generateBuildingFor(currentNode: AStarNode, nextNode: AStarNode): Building {
@@ -212,6 +220,18 @@ object BeltLayer {
         val blueprint = Blueprint()
         layBelts(blueprint, listOf(*paths))
         return blueprint
+    }
+
+    fun layBelts(blueprint: Blueprint, paths: List<AStarNode>) {
+        paths.forEach { path ->
+            var currentNode = path
+            while (currentNode.parent != null) {
+                val parent = currentNode.parent ?: throw RuntimeException("Literally not possible")
+
+                blueprint.addBuilding(generateBuildingFor(parent, currentNode)) //TODO generate for current node, not last or next or some stupid shit
+                currentNode = parent
+            }
+        }
     }
 
 }

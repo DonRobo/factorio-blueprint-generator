@@ -1,0 +1,15 @@
+{
+  "connections": 2,
+  "startDirection": "RIGHT",
+  "endDirection": "RIGHT",
+  "fastestPath": {
+    "pathCost": 146,
+    "calculationTime": 2147483647,
+    "visualization": "  ^\n  ^\n  ^\n\u003eu^\n  ^\n  ^\n  ^\n  ^\n  ^\n\u003eu^\n  ^\n  ^\n  ^\n  ^"
+  },
+  "fastestCalculation": {
+    "pathCost": 146,
+    "calculationTime": 2147483647,
+    "visualization": "  ^\n  ^\n  ^\n\u003eu^\n  ^\n  ^\n  ^\n  ^\n  ^\n\u003eu^\n  ^\n  ^\n  ^\n  ^"
+  }
+}

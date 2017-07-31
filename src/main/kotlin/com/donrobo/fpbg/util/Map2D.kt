@@ -2,7 +2,7 @@ package com.donrobo.fpbg.util
 
 import com.donrobo.fpbg.data.Int2
 
-class MapVisualizer {
+class Map2D {
 
     private val map = HashMap<Int2, Char>()
 
@@ -28,11 +28,19 @@ class MapVisualizer {
         map.put(pos, value)
     }
 
+    operator fun set(x: Int, y: Int, value: Char) {
+        map.put(Int2(x, y), value)
+    }
+
     operator fun get(pos: Int2): Char? {
         return map[pos]
     }
 
-    fun visualize(showCoordinates: Boolean = false): String {
+    operator fun get(x: Int, y: Int): Char? {
+        return map[Int2(x, y)]
+    }
+
+    fun visualize(showCoordinates: Boolean = false): String { //TODO schöner machen
         if (map.isEmpty()) return ""
 
         val stringBuilder = StringBuilder()
@@ -60,4 +68,29 @@ class MapVisualizer {
         return stringBuilder.toString()
     }
 
+    fun asMap(): Map<Int2, Char> = HashMap(map)
+
+}
+
+fun String.asMap(emptyChar: Char = ' '): Map2D {
+    val lines = lines()
+    val width = lines.map { it.length }.max() ?: 0
+    val height = if (width > 0) lines.size else 0
+
+    val map = Map2D()
+
+    lines.forEachIndexed { y, line ->
+        for (x in 0..(width - 1)) {
+            if (x < line.length) {
+                map[x, y] = line[x]
+            } else {
+                map[x, y] = emptyChar
+            }
+        }
+    }
+
+    assert(map.width == width)
+    assert(map.height == height)
+
+    return map
 }
